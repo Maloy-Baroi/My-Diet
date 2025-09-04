@@ -144,3 +144,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
+
+# Djoser Configuration
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'accounts.serializers.UserProfileSerializer',
+        'current_user': 'accounts.serializers.UserProfileSerializer',
+        'user_create': 'djoser.serializers.UserCreateSerializer',
+    },
+    'PERMISSIONS': {
+        'user': ['rest_framework.permissions.IsAuthenticated'],
+        'user_list': ['rest_framework.permissions.IsAuthenticated'],
+    },
+}
