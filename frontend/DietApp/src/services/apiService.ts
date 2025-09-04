@@ -1,17 +1,16 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import { BASE_URL } from '@env';
 
-// Base API URL - Update this to match your backend URL
-const BASE_URL = 'http://10.0.2.2:8000/api'; // For Android emulator
-// const BASE_URL = 'http://localhost:8000/api'; // For iOS simulator
-// const BASE_URL = 'https://your-backend-domain.com/api'; // For production
+// Fallback if .env is not loaded
+const API_URL = BASE_URL || 'http://10.0.2.2:8000/api';
 
 class ApiService {
-  private api: AxiosInstance;
+  private api: any;
 
   constructor() {
     this.api = axios.create({
-      baseURL: BASE_URL,
+      baseURL: API_URL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -24,20 +23,20 @@ class ApiService {
   private setupInterceptors() {
     // Request interceptor to add auth token
     this.api.interceptors.request.use(
-      async (config) => {
+      async (config: any) => {
         const token = await SecureStore.getItemAsync('access_token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      (error: any) => Promise.reject(error)
     );
 
     // Response interceptor to handle token refresh
     this.api.interceptors.response.use(
-      (response) => response,
-      async (error) => {
+      (response: any) => response,
+      async (error: any) => {
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
@@ -46,11 +45,12 @@ class ApiService {
           try {
             const refreshToken = await SecureStore.getItemAsync('refresh_token');
             if (refreshToken) {
-              const response = await axios.post(`${BASE_URL}/auth/jwt/refresh/`, {
+              const response = await axios.post(`${API_URL}/auth/jwt/refresh/`, {
                 refresh: refreshToken,
               });
 
-              const newAccessToken = response.data.access;
+              const responseData = response.data as any;
+              const newAccessToken = responseData.access as string;
               await SecureStore.setItemAsync('access_token', newAccessToken);
 
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -75,33 +75,40 @@ class ApiService {
 
   // Generic API methods
   async get<T>(url: string, params?: any): Promise<T> {
-    const response: AxiosResponse<T> = await this.api.get(url, { params });
+    const response = await this.api.get(url, { params });
     return response.data;
   }
 
   async post<T>(url: string, data?: any): Promise<T> {
-    const response: AxiosResponse<T> = await this.api.post(url, data);
+    const response = await this.api.post(url, data);
     return response.data;
   }
 
   async put<T>(url: string, data?: any): Promise<T> {
-    const response: AxiosResponse<T> = await this.api.put(url, data);
+    const response = await this.api.put(url, data);
     return response.data;
   }
 
   async patch<T>(url: string, data?: any): Promise<T> {
-    const response: AxiosResponse<T> = await this.api.patch(url, data);
-    return response.data;
+    try {
+      console.log(`Making PATCH request to ${url}:`, JSON.stringify(data));
+      const response = await this.api.patch(url, data);
+      console.log(`PATCH response from ${url}:`, JSON.stringify(response.data));
+      return response.data;
+    } catch (error) {
+      console.error(`PATCH request to ${url} failed:`, error);
+      throw error;
+    }
   }
 
   async delete<T>(url: string): Promise<T> {
-    const response: AxiosResponse<T> = await this.api.delete(url);
+    const response = await this.api.delete(url);
     return response.data;
   }
 
   // File upload method
   async uploadFile<T>(url: string, formData: FormData): Promise<T> {
-    const response: AxiosResponse<T> = await this.api.post(url, formData, {
+    const response = await this.api.post(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

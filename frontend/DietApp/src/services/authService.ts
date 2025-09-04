@@ -49,9 +49,12 @@ class AuthService {
   // Update user profile
   async updateProfile(userData: Partial<User>): Promise<User> {
     try {
+      console.log('Updating profile with data:', JSON.stringify(userData));
       const response = await apiService.patch<User>('/auth/users/me/', userData);
+      console.log('Profile update response:', JSON.stringify(response));
       return response;
     } catch (error) {
+      console.error('Profile update error in service:', error);
       throw error;
     }
   }

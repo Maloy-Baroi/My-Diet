@@ -10,6 +10,9 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/Button';
 import InputField from '../../components/InputField';
+import DatePickerInput from '../../components/DatePickerInput';
+import NumericInput from '../../components/NumericInput';
+import MultilineInput from '../../components/MultilineInput';
 import { validateWeight, validateHeight, validateAge } from '../../utils/validationUtils';
 
 interface OnboardingStep {
@@ -126,17 +129,39 @@ const OnboardingScreen: React.FC = () => {
         activity_level: formData.activityLevel as any,
         goal: formData.goal as any,
         target_weight: formData.targetWeight ? Number(formData.targetWeight) : undefined,
-        allergies: formData.allergies,
-        medical_conditions: formData.medicalConditions,
-        dietary_restrictions: formData.dietaryRestrictions,
-        preferred_cuisines: formData.preferredCuisines,
-        disliked_foods: formData.dislikedFoods,
+        allergies: formData.allergies || '',
+        medical_conditions: formData.medicalConditions || '',
+        dietary_restrictions: formData.dietaryRestrictions || '',
+        preferred_cuisines: formData.preferredCuisines || '',
+        disliked_foods: formData.dislikedFoods || '',
       };
 
-      await updateProfile(updateData);
-      Alert.alert('Welcome!', 'Your profile has been set up successfully.');
+      console.log('Sending profile update data:', JSON.stringify(updateData));
+      
+      const updatedUser = await updateProfile(updateData);
+      console.log('Profile updated successfully:', updatedUser);
+      
+      Alert.alert(
+        'Welcome!', 
+        'Your profile has been set up successfully.',
+        [{ text: 'OK' }]
+      );
     } catch (error: any) {
-      Alert.alert('Error', 'Failed to update profile. Please try again.');
+      console.error('Profile update error:', error);
+      let errorMessage = 'Failed to update profile. Please try again.';
+      
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        // Extract specific error message if available
+        if (typeof error.response.data === 'object') {
+          const firstError = Object.entries(error.response.data)[0];
+          if (firstError && firstError.length > 1) {
+            errorMessage = `${firstError[0]}: ${firstError[1]}`;
+          }
+        }
+      }
+      
+      Alert.alert('Error', errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -144,7 +169,7 @@ const OnboardingScreen: React.FC = () => {
 
   const BasicInfoStep = () => (
     <View style={styles.stepContent}>
-      <InputField
+      <DatePickerInput
         label="Date of Birth"
         placeholder="YYYY-MM-DD"
         value={formData.dateOfBirth}
@@ -182,22 +207,27 @@ const OnboardingScreen: React.FC = () => {
 
   const PhysicalInfoStep = () => (
     <View style={styles.stepContent}>
-      <InputField
+      <NumericInput
         label="Height (cm)"
         placeholder="Enter your height in centimeters"
         value={formData.height}
         onChangeText={(value) => handleInputChange('height', value)}
-        keyboardType="numeric"
         error={errors.height}
+        min={50}
+        max={300}
+        unit="cm"
       />
 
-      <InputField
+      <NumericInput
         label="Current Weight (kg)"
         placeholder="Enter your current weight in kilograms"
         value={formData.weight}
         onChangeText={(value) => handleInputChange('weight', value)}
-        keyboardType="numeric"
         error={errors.weight}
+        min={20}
+        max={500}
+        unit="kg"
+        decimalPlaces={1}
       />
     </View>
   );
@@ -264,13 +294,16 @@ const OnboardingScreen: React.FC = () => {
       {errors.goal && <Text style={styles.errorText}>{errors.goal}</Text>}
 
       {(formData.goal === 'lose_weight' || formData.goal === 'gain_weight') && (
-        <InputField
+        <NumericInput
           label="Target Weight (kg)"
           placeholder="Enter your target weight"
           value={formData.targetWeight}
           onChangeText={(value) => handleInputChange('targetWeight', value)}
-          keyboardType="numeric"
           error={errors.targetWeight}
+          min={20}
+          max={500}
+          unit="kg"
+          decimalPlaces={1}
         />
       )}
     </View>
@@ -278,42 +311,44 @@ const OnboardingScreen: React.FC = () => {
 
   const PreferencesStep = () => (
     <View style={styles.stepContent}>
-      <InputField
+      <MultilineInput
         label="Allergies (Optional)"
         placeholder="List any food allergies, separated by commas"
         value={formData.allergies}
         onChangeText={(value) => handleInputChange('allergies', value)}
-        multiline
+        icon="medkit-outline"
       />
 
-      <InputField
+      <MultilineInput
         label="Medical Conditions (Optional)"
         placeholder="Any relevant medical conditions"
         value={formData.medicalConditions}
         onChangeText={(value) => handleInputChange('medicalConditions', value)}
-        multiline
+        icon="fitness-outline"
       />
 
-      <InputField
+      <MultilineInput
         label="Dietary Restrictions (Optional)"
         placeholder="e.g., Vegetarian, Vegan, Halal, Kosher"
         value={formData.dietaryRestrictions}
         onChangeText={(value) => handleInputChange('dietaryRestrictions', value)}
+        icon="restaurant-outline"
       />
 
-      <InputField
+      <MultilineInput
         label="Preferred Cuisines (Optional)"
         placeholder="e.g., Italian, Asian, Mediterranean"
         value={formData.preferredCuisines}
         onChangeText={(value) => handleInputChange('preferredCuisines', value)}
+        icon="globe-outline"
       />
 
-      <InputField
+      <MultilineInput
         label="Disliked Foods (Optional)"
         placeholder="Foods you don't like, separated by commas"
         value={formData.dislikedFoods}
         onChangeText={(value) => handleInputChange('dislikedFoods', value)}
-        multiline
+        icon="close-circle-outline"
       />
     </View>
   );

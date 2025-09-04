@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ViewStyle,
   TextStyle,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -86,6 +87,7 @@ const InputField: React.FC<InputFieldProps> = ({
     leftIcon && styles.textInputWithLeftIcon,
     (rightIcon || secureTextEntry) && styles.textInputWithRightIcon,
     multiline && styles.multilineTextInput,
+    Platform.OS === 'ios' ? { paddingVertical: 12 } : { textAlignVertical: 'center' as const },
     inputStyle,
   ];
 
@@ -170,6 +172,8 @@ const styles = StyleSheet.create({
     borderColor: '#D1D1D6',
     borderRadius: 8,
     backgroundColor: '#FFFFFF',
+    paddingHorizontal: 0,
+    overflow: 'hidden',
   },
   focusedInputContainer: {
     borderColor: '#007AFF',
@@ -193,12 +197,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     minHeight: 44,
+    width: '100%',
   },
   textInputWithLeftIcon: {
-    paddingLeft: 0,
+    paddingLeft: 4,
   },
   textInputWithRightIcon: {
-    paddingRight: 0,
+    paddingRight: 4,
   },
   multilineTextInput: {
     minHeight: 80,
@@ -207,10 +212,14 @@ const styles = StyleSheet.create({
   leftIcon: {
     marginLeft: 16,
     marginRight: 8,
+    width: 20,
+    textAlign: 'center',
   },
   rightIcon: {
     paddingHorizontal: 16,
     paddingVertical: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   errorText: {
     fontSize: 14,

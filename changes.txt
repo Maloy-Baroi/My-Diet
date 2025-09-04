@@ -1,0 +1,693 @@
+diff --git a/backend/diet_system/settings.py b/backend/diet_system/settings.py
+index d41c4c3..e494fc6 100644
+--- a/backend/diet_system/settings.py
++++ b/backend/diet_system/settings.py
+@@ -144,3 +144,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+ 
+ # Custom User Model
+ AUTH_USER_MODEL = 'accounts.User'
++
++# Djoser Configuration
++DJOSER = {
++    'SERIALIZERS': {
++        'user': 'accounts.serializers.UserProfileSerializer',
++        'current_user': 'accounts.serializers.UserProfileSerializer',
++        'user_create': 'djoser.serializers.UserCreateSerializer',
++    },
++    'PERMISSIONS': {
++        'user': ['rest_framework.permissions.IsAuthenticated'],
++        'user_list': ['rest_framework.permissions.IsAuthenticated'],
++    },
++}
+diff --git a/frontend/DietApp/app.json b/frontend/DietApp/app.json
+index 1edc764..3d679a6 100644
+--- a/frontend/DietApp/app.json
++++ b/frontend/DietApp/app.json
+@@ -27,6 +27,9 @@
+     },
+     "plugins": [
+       "expo-secure-store"
+-    ]
++    ],
++    "extra": {
++      "BASE_URL": "http://10.0.2.2:8000/api"
++    }
+   }
+ }
+diff --git a/frontend/DietApp/package-lock.json b/frontend/DietApp/package-lock.json
+index eab5353..e9a94ae 100644
+--- a/frontend/DietApp/package-lock.json
++++ b/frontend/DietApp/package-lock.json
+@@ -9,11 +9,13 @@
+       "version": "1.0.0",
+       "dependencies": {
+         "@hookform/resolvers": "^5.2.1",
++        "@react-native-community/datetimepicker": "^8.4.4",
+         "@react-navigation/bottom-tabs": "^7.4.6",
+         "@react-navigation/drawer": "^7.5.7",
+         "@react-navigation/native": "^7.1.17",
+         "@react-navigation/stack": "^7.4.7",
+         "axios": "^1.11.0",
++        "dotenv": "^17.2.1",
+         "expo": "~53.0.22",
+         "expo-camera": "^16.1.11",
+         "expo-image-picker": "^16.1.4",
+@@ -26,6 +28,7 @@
+         "react-native": "0.79.5",
+         "react-native-calendars": "^1.1313.0",
+         "react-native-chart-kit": "^6.12.0",
++        "react-native-dotenv": "^3.4.11",
+         "react-native-elements": "^3.4.3",
+         "react-native-gesture-handler": "~2.24.0",
+         "react-native-paper": "^5.14.5",
+@@ -38,6 +41,7 @@
+       },
+       "devDependencies": {
+         "@babel/core": "^7.25.2",
++        "@types/node": "^24.3.0",
+         "@types/react": "~19.0.10",
+         "typescript": "~5.8.3"
+       }
+@@ -1657,6 +1661,18 @@
+         "getenv": "^2.0.0"
+       }
+     },
++    "node_modules/@expo/env/node_modules/dotenv": {
++      "version": "16.4.7",
++      "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-16.4.7.tgz",
++      "integrity": "sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==",
++      "license": "BSD-2-Clause",
++      "engines": {
++        "node": ">=12"
++      },
++      "funding": {
++        "url": "https://dotenvx.com"
++      }
++    },
+     "node_modules/@expo/fingerprint": {
+       "version": "0.13.4",
+       "resolved": "https://registry.npmjs.org/@expo/fingerprint/-/fingerprint-0.13.4.tgz",
+@@ -1760,6 +1776,18 @@
+         "resolve-from": "^5.0.0"
+       }
+     },
++    "node_modules/@expo/metro-config/node_modules/dotenv": {
++      "version": "16.4.7",
++      "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-16.4.7.tgz",
++      "integrity": "sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==",
++      "license": "BSD-2-Clause",
++      "engines": {
++        "node": ">=12"
++      },
++      "funding": {
++        "url": "https://dotenvx.com"
++      }
++    },
+     "node_modules/@expo/osascript": {
+       "version": "2.2.5",
+       "resolved": "https://registry.npmjs.org/@expo/osascript/-/osascript-2.2.5.tgz",
+@@ -2197,6 +2225,29 @@
+         "node": ">=14"
+       }
+     },
++    "node_modules/@react-native-community/datetimepicker": {
++      "version": "8.4.4",
++      "resolved": "https://registry.npmjs.org/@react-native-community/datetimepicker/-/datetimepicker-8.4.4.tgz",
++      "integrity": "sha512-bc4ZixEHxZC9/qf5gbdYvIJiLZ5CLmEsC3j+Yhe1D1KC/3QhaIfGDVdUcid0PdlSoGOSEq4VlB93AWyetEyBSQ==",
++      "license": "MIT",
++      "dependencies": {
++        "invariant": "^2.2.4"
++      },
++      "peerDependencies": {
++        "expo": ">=52.0.0",
++        "react": "*",
++        "react-native": "*",
++        "react-native-windows": "*"
++      },
++      "peerDependenciesMeta": {
++        "expo": {
++          "optional": true
++        },
++        "react-native-windows": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/@react-native/assets-registry": {
+       "version": "0.79.5",
+       "resolved": "https://registry.npmjs.org/@react-native/assets-registry/-/assets-registry-0.79.5.tgz",
+@@ -2715,6 +2766,7 @@
+       "version": "24.3.0",
+       "resolved": "https://registry.npmjs.org/@types/node/-/node-24.3.0.tgz",
+       "integrity": "sha512-aPTXCrfwnDLj4VvXrm+UUCQjNEvJgNA8s5F1cvwQU+3KNltTOkBm1j30uNLyqqPNe7gE3KFzImYoZEfLhp4Yow==",
++      "license": "MIT",
+       "dependencies": {
+         "undici-types": "~7.10.0"
+       }
+@@ -2948,7 +3000,8 @@
+     "node_modules/asynckit": {
+       "version": "0.4.0",
+       "resolved": "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz",
+-      "integrity": "sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q=="
++      "integrity": "sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==",
++      "license": "MIT"
+     },
+     "node_modules/available-typed-arrays": {
+       "version": "1.0.7",
+@@ -2968,6 +3021,7 @@
+       "version": "1.11.0",
+       "resolved": "https://registry.npmjs.org/axios/-/axios-1.11.0.tgz",
+       "integrity": "sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==",
++      "license": "MIT",
+       "dependencies": {
+         "follow-redirects": "^1.15.6",
+         "form-data": "^4.0.4",
+@@ -3619,6 +3673,7 @@
+       "version": "1.0.8",
+       "resolved": "https://registry.npmjs.org/combined-stream/-/combined-stream-1.0.8.tgz",
+       "integrity": "sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==",
++      "license": "MIT",
+       "dependencies": {
+         "delayed-stream": "~1.0.0"
+       },
+@@ -3933,6 +3988,7 @@
+       "version": "1.0.0",
+       "resolved": "https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz",
+       "integrity": "sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==",
++      "license": "MIT",
+       "engines": {
+         "node": ">=0.4.0"
+       }
+@@ -4017,9 +4073,10 @@
+       }
+     },
+     "node_modules/dotenv": {
+-      "version": "16.4.7",
+-      "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-16.4.7.tgz",
+-      "integrity": "sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==",
++      "version": "17.2.1",
++      "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-17.2.1.tgz",
++      "integrity": "sha512-kQhDYKZecqnM0fCnzI5eIv5L4cAe/iRI+HqMbO/hbRdTAeXDG+M9FjipUxNfbARuEg4iHIbhnhs78BCHNbSxEQ==",
++      "license": "BSD-2-Clause",
+       "engines": {
+         "node": ">=12"
+       },
+@@ -4041,6 +4098,18 @@
+         "url": "https://dotenvx.com"
+       }
+     },
++    "node_modules/dotenv-expand/node_modules/dotenv": {
++      "version": "16.6.1",
++      "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-16.6.1.tgz",
++      "integrity": "sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==",
++      "license": "BSD-2-Clause",
++      "engines": {
++        "node": ">=12"
++      },
++      "funding": {
++        "url": "https://dotenvx.com"
++      }
++    },
+     "node_modules/dunder-proto": {
+       "version": "1.0.1",
+       "resolved": "https://registry.npmjs.org/dunder-proto/-/dunder-proto-1.0.1.tgz",
+@@ -4148,6 +4217,7 @@
+       "version": "2.1.0",
+       "resolved": "https://registry.npmjs.org/es-set-tostringtag/-/es-set-tostringtag-2.1.0.tgz",
+       "integrity": "sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==",
++      "license": "MIT",
+       "dependencies": {
+         "es-errors": "^1.3.0",
+         "get-intrinsic": "^1.2.6",
+@@ -4532,6 +4602,7 @@
+           "url": "https://github.com/sponsors/RubenVerborgh"
+         }
+       ],
++      "license": "MIT",
+       "engines": {
+         "node": ">=4.0"
+       },
+@@ -4579,6 +4650,7 @@
+       "version": "4.0.4",
+       "resolved": "https://registry.npmjs.org/form-data/-/form-data-4.0.4.tgz",
+       "integrity": "sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==",
++      "license": "MIT",
+       "dependencies": {
+         "asynckit": "^0.4.0",
+         "combined-stream": "^1.0.8",
+@@ -6894,7 +6966,8 @@
+     "node_modules/proxy-from-env": {
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-1.1.0.tgz",
+-      "integrity": "sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg=="
++      "integrity": "sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==",
++      "license": "MIT"
+     },
+     "node_modules/punycode": {
+       "version": "2.3.1",
+@@ -7130,6 +7203,30 @@
+         "react-native-svg": "> 6.4.1"
+       }
+     },
++    "node_modules/react-native-dotenv": {
++      "version": "3.4.11",
++      "resolved": "https://registry.npmjs.org/react-native-dotenv/-/react-native-dotenv-3.4.11.tgz",
++      "integrity": "sha512-6vnIE+WHABSeHCaYP6l3O1BOEhWxKH6nHAdV7n/wKn/sciZ64zPPp2NUdEUf1m7g4uuzlLbjgr+6uDt89q2DOg==",
++      "license": "MIT",
++      "dependencies": {
++        "dotenv": "^16.4.5"
++      },
++      "peerDependencies": {
++        "@babel/runtime": "^7.20.6"
++      }
++    },
++    "node_modules/react-native-dotenv/node_modules/dotenv": {
++      "version": "16.6.1",
++      "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-16.6.1.tgz",
++      "integrity": "sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==",
++      "license": "BSD-2-Clause",
++      "engines": {
++        "node": ">=12"
++      },
++      "funding": {
++        "url": "https://dotenvx.com"
++      }
++    },
+     "node_modules/react-native-drawer-layout": {
+       "version": "4.1.12",
+       "resolved": "https://registry.npmjs.org/react-native-drawer-layout/-/react-native-drawer-layout-4.1.12.tgz",
+diff --git a/frontend/DietApp/package.json b/frontend/DietApp/package.json
+index c06c166..3582e8a 100644
+--- a/frontend/DietApp/package.json
++++ b/frontend/DietApp/package.json
+@@ -10,11 +10,13 @@
+   },
+   "dependencies": {
+     "@hookform/resolvers": "^5.2.1",
++    "@react-native-community/datetimepicker": "^8.4.4",
+     "@react-navigation/bottom-tabs": "^7.4.6",
+     "@react-navigation/drawer": "^7.5.7",
+     "@react-navigation/native": "^7.1.17",
+     "@react-navigation/stack": "^7.4.7",
+     "axios": "^1.11.0",
++    "dotenv": "^17.2.1",
+     "expo": "~53.0.22",
+     "expo-camera": "^16.1.11",
+     "expo-image-picker": "^16.1.4",
+@@ -27,6 +29,7 @@
+     "react-native": "0.79.5",
+     "react-native-calendars": "^1.1313.0",
+     "react-native-chart-kit": "^6.12.0",
++    "react-native-dotenv": "^3.4.11",
+     "react-native-elements": "^3.4.3",
+     "react-native-gesture-handler": "~2.24.0",
+     "react-native-paper": "^5.14.5",
+@@ -39,6 +42,7 @@
+   },
+   "devDependencies": {
+     "@babel/core": "^7.25.2",
++    "@types/node": "^24.3.0",
+     "@types/react": "~19.0.10",
+     "typescript": "~5.8.3"
+   },
+diff --git a/frontend/DietApp/src/components/InputField.tsx b/frontend/DietApp/src/components/InputField.tsx
+index e8f9b40..05019cc 100644
+--- a/frontend/DietApp/src/components/InputField.tsx
++++ b/frontend/DietApp/src/components/InputField.tsx
+@@ -7,6 +7,7 @@ import {
+   TouchableOpacity,
+   ViewStyle,
+   TextStyle,
++  Platform,
+ } from 'react-native';
+ import { Ionicons } from '@expo/vector-icons';
+ 
+@@ -86,6 +87,7 @@ const InputField: React.FC<InputFieldProps> = ({
+     leftIcon && styles.textInputWithLeftIcon,
+     (rightIcon || secureTextEntry) && styles.textInputWithRightIcon,
+     multiline && styles.multilineTextInput,
++    Platform.OS === 'ios' ? { paddingVertical: 12 } : { textAlignVertical: 'center' as const },
+     inputStyle,
+   ];
+ 
+@@ -170,6 +172,8 @@ const styles = StyleSheet.create({
+     borderColor: '#D1D1D6',
+     borderRadius: 8,
+     backgroundColor: '#FFFFFF',
++    paddingHorizontal: 0,
++    overflow: 'hidden',
+   },
+   focusedInputContainer: {
+     borderColor: '#007AFF',
+@@ -193,12 +197,13 @@ const styles = StyleSheet.create({
+     paddingHorizontal: 16,
+     paddingVertical: 12,
+     minHeight: 44,
++    width: '100%',
+   },
+   textInputWithLeftIcon: {
+-    paddingLeft: 0,
++    paddingLeft: 4,
+   },
+   textInputWithRightIcon: {
+-    paddingRight: 0,
++    paddingRight: 4,
+   },
+   multilineTextInput: {
+     minHeight: 80,
+@@ -207,10 +212,14 @@ const styles = StyleSheet.create({
+   leftIcon: {
+     marginLeft: 16,
+     marginRight: 8,
++    width: 20,
++    textAlign: 'center',
+   },
+   rightIcon: {
+     paddingHorizontal: 16,
+     paddingVertical: 12,
++    justifyContent: 'center',
++    alignItems: 'center',
+   },
+   errorText: {
+     fontSize: 14,
+diff --git a/frontend/DietApp/src/screens/auth/OnboardingScreen.tsx b/frontend/DietApp/src/screens/auth/OnboardingScreen.tsx
+index eb047b3..4230bb9 100644
+--- a/frontend/DietApp/src/screens/auth/OnboardingScreen.tsx
++++ b/frontend/DietApp/src/screens/auth/OnboardingScreen.tsx
+@@ -10,6 +10,9 @@ import {
+ import { useAuth } from '../../context/AuthContext';
+ import Button from '../../components/Button';
+ import InputField from '../../components/InputField';
++import DatePickerInput from '../../components/DatePickerInput';
++import NumericInput from '../../components/NumericInput';
++import MultilineInput from '../../components/MultilineInput';
+ import { validateWeight, validateHeight, validateAge } from '../../utils/validationUtils';
+ 
+ interface OnboardingStep {
+@@ -126,17 +129,39 @@ const OnboardingScreen: React.FC = () => {
+         activity_level: formData.activityLevel as any,
+         goal: formData.goal as any,
+         target_weight: formData.targetWeight ? Number(formData.targetWeight) : undefined,
+-        allergies: formData.allergies,
+-        medical_conditions: formData.medicalConditions,
+-        dietary_restrictions: formData.dietaryRestrictions,
+-        preferred_cuisines: formData.preferredCuisines,
+-        disliked_foods: formData.dislikedFoods,
++        allergies: formData.allergies || '',
++        medical_conditions: formData.medicalConditions || '',
++        dietary_restrictions: formData.dietaryRestrictions || '',
++        preferred_cuisines: formData.preferredCuisines || '',
++        disliked_foods: formData.dislikedFoods || '',
+       };
+ 
+-      await updateProfile(updateData);
+-      Alert.alert('Welcome!', 'Your profile has been set up successfully.');
++      console.log('Sending profile update data:', JSON.stringify(updateData));
++      
++      const updatedUser = await updateProfile(updateData);
++      console.log('Profile updated successfully:', updatedUser);
++      
++      Alert.alert(
++        'Welcome!', 
++        'Your profile has been set up successfully.',
++        [{ text: 'OK' }]
++      );
+     } catch (error: any) {
+-      Alert.alert('Error', 'Failed to update profile. Please try again.');
++      console.error('Profile update error:', error);
++      let errorMessage = 'Failed to update profile. Please try again.';
++      
++      if (error.response) {
++        console.error('Error response data:', error.response.data);
++        // Extract specific error message if available
++        if (typeof error.response.data === 'object') {
++          const firstError = Object.entries(error.response.data)[0];
++          if (firstError && firstError.length > 1) {
++            errorMessage = `${firstError[0]}: ${firstError[1]}`;
++          }
++        }
++      }
++      
++      Alert.alert('Error', errorMessage);
+     } finally {
+       setIsLoading(false);
+     }
+@@ -144,7 +169,7 @@ const OnboardingScreen: React.FC = () => {
+ 
+   const BasicInfoStep = () => (
+     <View style={styles.stepContent}>
+-      <InputField
++      <DatePickerInput
+         label="Date of Birth"
+         placeholder="YYYY-MM-DD"
+         value={formData.dateOfBirth}
+@@ -182,22 +207,27 @@ const OnboardingScreen: React.FC = () => {
+ 
+   const PhysicalInfoStep = () => (
+     <View style={styles.stepContent}>
+-      <InputField
++      <NumericInput
+         label="Height (cm)"
+         placeholder="Enter your height in centimeters"
+         value={formData.height}
+         onChangeText={(value) => handleInputChange('height', value)}
+-        keyboardType="numeric"
+         error={errors.height}
++        min={50}
++        max={300}
++        unit="cm"
+       />
+ 
+-      <InputField
++      <NumericInput
+         label="Current Weight (kg)"
+         placeholder="Enter your current weight in kilograms"
+         value={formData.weight}
+         onChangeText={(value) => handleInputChange('weight', value)}
+-        keyboardType="numeric"
+         error={errors.weight}
++        min={20}
++        max={500}
++        unit="kg"
++        decimalPlaces={1}
+       />
+     </View>
+   );
+@@ -264,13 +294,16 @@ const OnboardingScreen: React.FC = () => {
+       {errors.goal && <Text style={styles.errorText}>{errors.goal}</Text>}
+ 
+       {(formData.goal === 'lose_weight' || formData.goal === 'gain_weight') && (
+-        <InputField
++        <NumericInput
+           label="Target Weight (kg)"
+           placeholder="Enter your target weight"
+           value={formData.targetWeight}
+           onChangeText={(value) => handleInputChange('targetWeight', value)}
+-          keyboardType="numeric"
+           error={errors.targetWeight}
++          min={20}
++          max={500}
++          unit="kg"
++          decimalPlaces={1}
+         />
+       )}
+     </View>
+@@ -278,42 +311,44 @@ const OnboardingScreen: React.FC = () => {
+ 
+   const PreferencesStep = () => (
+     <View style={styles.stepContent}>
+-      <InputField
++      <MultilineInput
+         label="Allergies (Optional)"
+         placeholder="List any food allergies, separated by commas"
+         value={formData.allergies}
+         onChangeText={(value) => handleInputChange('allergies', value)}
+-        multiline
++        icon="medkit-outline"
+       />
+ 
+-      <InputField
++      <MultilineInput
+         label="Medical Conditions (Optional)"
+         placeholder="Any relevant medical conditions"
+         value={formData.medicalConditions}
+         onChangeText={(value) => handleInputChange('medicalConditions', value)}
+-        multiline
++        icon="fitness-outline"
+       />
+ 
+-      <InputField
++      <MultilineInput
+         label="Dietary Restrictions (Optional)"
+         placeholder="e.g., Vegetarian, Vegan, Halal, Kosher"
+         value={formData.dietaryRestrictions}
+         onChangeText={(value) => handleInputChange('dietaryRestrictions', value)}
++        icon="restaurant-outline"
+       />
+ 
+-      <InputField
++      <MultilineInput
+         label="Preferred Cuisines (Optional)"
+         placeholder="e.g., Italian, Asian, Mediterranean"
+         value={formData.preferredCuisines}
+         onChangeText={(value) => handleInputChange('preferredCuisines', value)}
++        icon="globe-outline"
+       />
+ 
+-      <InputField
++      <MultilineInput
+         label="Disliked Foods (Optional)"
+         placeholder="Foods you don't like, separated by commas"
+         value={formData.dislikedFoods}
+         onChangeText={(value) => handleInputChange('dislikedFoods', value)}
+-        multiline
++        icon="close-circle-outline"
+       />
+     </View>
+   );
+diff --git a/frontend/DietApp/src/services/apiService.ts b/frontend/DietApp/src/services/apiService.ts
+index fdec4fa..d4f51b7 100644
+--- a/frontend/DietApp/src/services/apiService.ts
++++ b/frontend/DietApp/src/services/apiService.ts
+@@ -1,17 +1,16 @@
+-import axios, { AxiosInstance, AxiosResponse } from 'axios';
++import axios from 'axios';
+ import * as SecureStore from 'expo-secure-store';
++import { BASE_URL } from '@env';
+ 
+-// Base API URL - Update this to match your backend URL
+-const BASE_URL = 'http://10.0.2.2:8000/api'; // For Android emulator
+-// const BASE_URL = 'http://localhost:8000/api'; // For iOS simulator
+-// const BASE_URL = 'https://your-backend-domain.com/api'; // For production
++// Fallback if .env is not loaded
++const API_URL = BASE_URL || 'http://10.0.2.2:8000/api';
+ 
+ class ApiService {
+-  private api: AxiosInstance;
++  private api: any;
+ 
+   constructor() {
+     this.api = axios.create({
+-      baseURL: BASE_URL,
++      baseURL: API_URL,
+       timeout: 10000,
+       headers: {
+         'Content-Type': 'application/json',
+@@ -24,20 +23,20 @@ class ApiService {
+   private setupInterceptors() {
+     // Request interceptor to add auth token
+     this.api.interceptors.request.use(
+-      async (config) => {
++      async (config: any) => {
+         const token = await SecureStore.getItemAsync('access_token');
+         if (token) {
+           config.headers.Authorization = `Bearer ${token}`;
+         }
+         return config;
+       },
+-      (error) => Promise.reject(error)
++      (error: any) => Promise.reject(error)
+     );
+ 
+     // Response interceptor to handle token refresh
+     this.api.interceptors.response.use(
+-      (response) => response,
+-      async (error) => {
++      (response: any) => response,
++      async (error: any) => {
+         const originalRequest = error.config;
+ 
+         if (error.response?.status === 401 && !originalRequest._retry) {
+@@ -46,11 +45,12 @@ class ApiService {
+           try {
+             const refreshToken = await SecureStore.getItemAsync('refresh_token');
+             if (refreshToken) {
+-              const response = await axios.post(`${BASE_URL}/auth/jwt/refresh/`, {
++              const response = await axios.post(`${API_URL}/auth/jwt/refresh/`, {
+                 refresh: refreshToken,
+               });
+ 
+-              const newAccessToken = response.data.access;
++              const responseData = response.data as any;
++              const newAccessToken = responseData.access as string;
+               await SecureStore.setItemAsync('access_token', newAccessToken);
+ 
+               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+@@ -75,33 +75,40 @@ class ApiService {
+ 
+   // Generic API methods
+   async get<T>(url: string, params?: any): Promise<T> {
+-    const response: AxiosResponse<T> = await this.api.get(url, { params });
++    const response = await this.api.get(url, { params });
+     return response.data;
+   }
+ 
+   async post<T>(url: string, data?: any): Promise<T> {
+-    const response: AxiosResponse<T> = await this.api.post(url, data);
++    const response = await this.api.post(url, data);
+     return response.data;
+   }
+ 
+   async put<T>(url: string, data?: any): Promise<T> {
+-    const response: AxiosResponse<T> = await this.api.put(url, data);
++    const response = await this.api.put(url, data);
+     return response.data;
+   }
+ 
+   async patch<T>(url: string, data?: any): Promise<T> {
+-    const response: AxiosResponse<T> = await this.api.patch(url, data);
+-    return response.data;
++    try {
++      console.log(`Making PATCH request to ${url}:`, JSON.stringify(data));
++      const response = await this.api.patch(url, data);
++      console.log(`PATCH response from ${url}:`, JSON.stringify(response.data));
++      return response.data;
++    } catch (error) {
++      console.error(`PATCH request to ${url} failed:`, error);
++      throw error;
++    }
+   }
+ 
+   async delete<T>(url: string): Promise<T> {
+-    const response: AxiosResponse<T> = await this.api.delete(url);
++    const response = await this.api.delete(url);
+     return response.data;
+   }
+ 
+   // File upload method
+   async uploadFile<T>(url: string, formData: FormData): Promise<T> {
+-    const response: AxiosResponse<T> = await this.api.post(url, formData, {
++    const response = await this.api.post(url, formData, {
+       headers: {
+         'Content-Type': 'multipart/form-data',
+       },
+diff --git a/frontend/DietApp/src/services/authService.ts b/frontend/DietApp/src/services/authService.ts
+index ca252e1..c355332 100644
+--- a/frontend/DietApp/src/services/authService.ts
++++ b/frontend/DietApp/src/services/authService.ts
+@@ -49,9 +49,12 @@ class AuthService {
+   // Update user profile
+   async updateProfile(userData: Partial<User>): Promise<User> {
+     try {
++      console.log('Updating profile with data:', JSON.stringify(userData));
+       const response = await apiService.patch<User>('/auth/users/me/', userData);
++      console.log('Profile update response:', JSON.stringify(response));
+       return response;
+     } catch (error) {
++      console.error('Profile update error in service:', error);
+       throw error;
+     }
+   }
+diff --git a/frontend/DietApp/tsconfig.json b/frontend/DietApp/tsconfig.json
+index b9567f6..ee039d6 100644
+--- a/frontend/DietApp/tsconfig.json
++++ b/frontend/DietApp/tsconfig.json
+@@ -1,6 +1,7 @@
+ {
+   "extends": "expo/tsconfig.base",
+   "compilerOptions": {
+-    "strict": true
++    "strict": true,
++    "lib": ["es2015"]
+   }
+ }
