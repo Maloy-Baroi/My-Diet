@@ -1,16 +1,16 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import { BASE_URL } from '@env';
+import { EXPO_PUBLIC_BASE_URL } from '@env';
 import { Platform } from "react-native";
 
 const HOST = Platform.select({
   ios: "http://172.16.100.203:8080",            // iOS device/simulator
   android: "http://10.0.2.2:8080",              // Android emulator (AVD)
-  default: BASE_URL ||"http://172.16.100.203:8080",        // Physical devices (both)
+  default: EXPO_PUBLIC_BASE_URL ||"http://172.16.100.203:8080",        // Physical devices (both)
 });
 
 // Fallback if .env is not loaded
-const API_URL = BASE_URL || 'http://172.16.100.203:8000/api';
+const API_URL = EXPO_PUBLIC_BASE_URL || 'http://172.16.100.203:8000/api';
 
 
 class ApiService {
