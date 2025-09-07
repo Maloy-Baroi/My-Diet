@@ -95,6 +95,7 @@ class AuthService {
   async isAuthenticated(): Promise<boolean> {
     try {
       const token = await SecureStore.getItemAsync('access_token');
+      console.log('Access token:', token);
       return !!token;
     } catch (error) {
       return false;
