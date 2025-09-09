@@ -22,7 +22,7 @@ interface OnboardingStep {
 }
 
 const OnboardingScreen: React.FC = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, clearAllTokens } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -165,6 +165,32 @@ const OnboardingScreen: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Debug function to manually clear all tokens
+  const handleClearTokens = async () => {
+    Alert.alert(
+      'Clear All Tokens',
+      'This will remove all stored authentication data. Are you sure?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await clearAllTokens();
+              Alert.alert('Success', 'All tokens have been cleared');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to clear tokens');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const BasicInfoStep = () => (
@@ -395,6 +421,16 @@ const OnboardingScreen: React.FC = () => {
             />
           ))}
         </View>
+        
+        {/* Debug button - remove in production */}
+        {__DEV__ && (
+          <TouchableOpacity
+            style={styles.debugButton}
+            onPress={handleClearTokens}
+          >
+            <Text style={styles.debugButtonText}>🗑️ Clear All Tokens (Debug)</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <ScrollView style={styles.content}>
@@ -541,6 +577,18 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     flex: 2,
+  },
+  debugButton: {
+    marginTop: 12,
+    padding: 8,
+    backgroundColor: '#FF6B6B',
+    borderRadius: 6,
+  },
+  debugButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });
 

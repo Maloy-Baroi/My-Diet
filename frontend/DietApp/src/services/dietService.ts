@@ -10,7 +10,7 @@ class DietPlanService {
   // Get all diet plans for user
   async getDietPlans(): Promise<PaginatedResponse<DietPlan>> {
     try {
-      return await apiService.get<PaginatedResponse<DietPlan>>('/diet-plans/');
+      return await apiService.get<PaginatedResponse<DietPlan>>('/diet/');
     } catch (error) {
       throw error;
     }
@@ -19,7 +19,7 @@ class DietPlanService {
   // Get specific diet plan
   async getDietPlan(id: number): Promise<DietPlan> {
     try {
-      return await apiService.get<DietPlan>(`/diet-plans/${id}/`);
+      return await apiService.get<DietPlan>(`/diet/${id}/`);
     } catch (error) {
       throw error;
     }
@@ -28,7 +28,7 @@ class DietPlanService {
   // Create new diet plan
   async createDietPlan(dietPlanData: Partial<DietPlan>): Promise<DietPlan> {
     try {
-      return await apiService.post<DietPlan>('/diet-plans/', dietPlanData);
+      return await apiService.post<DietPlan>('/diet/', dietPlanData);
     } catch (error) {
       throw error;
     }
@@ -37,7 +37,7 @@ class DietPlanService {
   // Update diet plan
   async updateDietPlan(id: number, dietPlanData: Partial<DietPlan>): Promise<DietPlan> {
     try {
-      return await apiService.patch<DietPlan>(`/diet-plans/${id}/`, dietPlanData);
+      return await apiService.patch<DietPlan>(`/diet/${id}/`, dietPlanData);
     } catch (error) {
       throw error;
     }
@@ -46,7 +46,7 @@ class DietPlanService {
   // Delete diet plan
   async deleteDietPlan(id: number): Promise<void> {
     try {
-      await apiService.delete(`/diet-plans/${id}/`);
+      await apiService.delete(`/diet/${id}/`);
     } catch (error) {
       throw error;
     }
@@ -55,7 +55,46 @@ class DietPlanService {
   // Generate AI diet plan
   async generateAIDietPlan(preferences: any): Promise<DietPlan> {
     try {
-      return await apiService.post<DietPlan>('/diet-plans/generate_ai_plan/', preferences);
+      return await apiService.post<DietPlan>('/diet/generate/', preferences);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Generate diet plan using your Django backend
+  async generateDietPlan(mealType: 'Regular' | 'Ramadan', goal: 'weight_loss' | 'muscle_gain' | 'maintenance'): Promise<{
+    message: string;
+    meal_plan_id: number;
+    start_date: string;
+    end_date: string;
+    meal_type: string;
+  }> {
+    try {
+      return await apiService.post('/diet/generate/', {
+        meal_type: mealType,
+        goal: goal,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get generated meal plan details
+  async getGeneratedMealPlan(mealPlanId: number): Promise<{
+    id: number;
+    daily_plans: Array<{
+      day: number;
+      date: string;
+      breakfast: string;
+      lunch: string;
+      dinner: string;
+    }>;
+    start_date: string;
+    end_date: string;
+    meal_type: string;
+  }> {
+    try {
+      return await apiService.get(`/diet/generate/${mealPlanId}/`);
     } catch (error) {
       throw error;
     }
@@ -64,7 +103,7 @@ class DietPlanService {
   // Get recommended meals
   async getRecommendedMeals(dietPlanId: number, date: string): Promise<Meal[]> {
     try {
-      return await apiService.get<Meal[]>(`/diet-plans/${dietPlanId}/recommended_meals/`, {
+      return await apiService.get<Meal[]>(`/diet/${dietPlanId}/recommended_meals/`, {
         date
       });
     } catch (error) {
@@ -75,7 +114,7 @@ class DietPlanService {
   // Get meal suggestions
   async getMealSuggestions(preferences: any): Promise<Meal[]> {
     try {
-      return await apiService.post<Meal[]>('/diet-plans/meal_suggestions/', preferences);
+      return await apiService.post<Meal[]>('/diet/meal_suggestions/', preferences);
     } catch (error) {
       throw error;
     }

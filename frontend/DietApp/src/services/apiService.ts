@@ -12,6 +12,7 @@ const HOST = Platform.select({
 // Fallback if .env is not loaded
 const API_URL = EXPO_PUBLIC_BASE_URL || 'http://172.16.100.203:8000/api';
 
+console.log("API_URL:", API_URL);
 
 class ApiService {
   private api: any;

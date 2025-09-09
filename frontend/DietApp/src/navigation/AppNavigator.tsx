@@ -15,16 +15,17 @@ import OnboardingScreen from '../screens/auth/OnboardingScreen';
 // Main Screens
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import DietPlanScreen from '../screens/diet/DietPlanScreen';
-import NutritionScreen from '../screens/nutrition/NutritionScreen';
-import ProgressScreen from '../screens/progress/ProgressScreen';
+import TodoAlarmScreen from '../screens/todo/TodoAlarmScreen';
+// import NutritionScreen from '../screens/nutrition/NutritionScreen';
+// import ProgressScreen from '../screens/progress/ProgressScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 
 // Additional Screens
-import MealPlannerScreen from '../screens/diet/MealPlannerScreen';
-import FoodSearchScreen from '../screens/nutrition/FoodSearchScreen';
-import CalorieTrackerScreen from '../screens/nutrition/CalorieTrackerScreen';
-import WeightTrackerScreen from '../screens/progress/WeightTrackerScreen';
-import AchievementsScreen from '../screens/progress/AchievementsScreen';
+// import MealPlannerScreen from '../screens/diet/MealPlannerScreen';
+// import FoodSearchScreen from '../screens/nutrition/FoodSearchScreen';
+// import CalorieTrackerScreen from '../screens/nutrition/CalorieTrackerScreen';
+// import WeightTrackerScreen from '../screens/progress/WeightTrackerScreen';
+// import AchievementsScreen from '../screens/progress/AchievementsScreen';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 
@@ -56,6 +57,9 @@ const MainTabs = () => (
           case 'Diet':
             iconName = focused ? 'restaurant' : 'restaurant-outline';
             break;
+          case 'Todo':
+            iconName = focused ? 'checkmark-circle' : 'checkmark-circle-outline';
+            break;
           case 'Nutrition':
             iconName = focused ? 'nutrition' : 'nutrition-outline';
             break;
@@ -78,8 +82,9 @@ const MainTabs = () => (
   >
     <Tab.Screen name="Dashboard" component={DashboardScreen} />
     <Tab.Screen name="Diet" component={DietPlanScreen} />
-    <Tab.Screen name="Nutrition" component={NutritionScreen} />
-    <Tab.Screen name="Progress" component={ProgressScreen} />
+    <Tab.Screen name="Todo" component={TodoAlarmScreen} />
+    {/* <Tab.Screen name="Nutrition" component={NutritionScreen} /> */}
+    {/* <Tab.Screen name="Progress" component={ProgressScreen} /> */}
     <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
 );
@@ -92,7 +97,7 @@ const MainStack = () => (
       component={MainTabs} 
       options={{ headerShown: false }}
     />
-    <Stack.Screen 
+    {/* <Stack.Screen 
       name="MealPlanner" 
       component={MealPlannerScreen}
       options={{ title: 'Meal Planner' }}
@@ -116,7 +121,7 @@ const MainStack = () => (
       name="Achievements" 
       component={AchievementsScreen}
       options={{ title: 'Achievements' }}
-    />
+    /> */}
     <Stack.Screen 
       name="Notifications" 
       component={NotificationsScreen}

@@ -1,246 +1,250 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
-import Loading from '../../components/Loading';
-import { DietPlan } from '../../types';
+import { formatDateDisplay, addDays } from '../../utils/dateUtils';
 import { dietPlanService } from '../../services/dietService';
-import { formatDateDisplay } from '../../utils/dateUtils';
-import { formatCalories } from '../../utils/numberUtils';
+
+interface DietDay {
+  id: string;
+  date: Date;
+  dayNumber: number;
+  meals: {
+    breakfast: string;
+    lunch: string;
+    dinner: string;
+  };
+  generated: boolean;
+}
 
 const DietPlanScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const [dietPlans, setDietPlans] = useState<DietPlan[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [dietDays, setDietDays] = useState<DietDay[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  useEffect(() => {
-    loadDietPlans();
-  }, []);
-
-  const loadDietPlans = async () => {
+  const generateDietPlan = async () => {
+    setIsGenerating(true);
+    
     try {
-      setIsLoading(true);
-      const response = await dietPlanService.getDietPlans();
-      setDietPlans(response.results);
-    } catch (error) {
-      console.error('Failed to load diet plans:', error);
-      Alert.alert('Error', 'Failed to load diet plans');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const generateAIPlan = async () => {
-    try {
-      setIsGenerating(true);
+      // Call the Django backend API using the service
+      const response = await dietPlanService.generateDietPlan('Regular', 'weight_loss');
+      
+      // Fetch the detailed meal plan
+      const mealPlanData = await dietPlanService.getGeneratedMealPlan(response.meal_plan_id);
+      
+      // Convert the backend data to frontend format
+      const today = new Date(response.start_date);
+      const newDietDays: DietDay[] = [];
+      
+      // Use the daily_plans from the backend response
+      if (mealPlanData.daily_plans && mealPlanData.daily_plans.length > 0) {
+        mealPlanData.daily_plans.forEach((dayData, index) => {
+          const date = addDays(today, index);
+          newDietDays.push({
+            id: `day-${index + 1}`,
+            date,
+            dayNumber: index + 1,
+            meals: {
+              breakfast: dayData.breakfast || 'Healthy breakfast option',
+              lunch: dayData.lunch || 'Nutritious lunch option',
+              dinner: dayData.dinner || 'Balanced dinner option',
+            },
+            generated: true,
+          });
+        });
+      } else {
+        // Fallback if no daily plans are returned
+        for (let i = 0; i < 30; i++) {
+          const date = addDays(today, i);
+          newDietDays.push({
+            id: `day-${i + 1}`,
+            date,
+            dayNumber: i + 1,
+            meals: {
+              breakfast: 'Personalized breakfast option',
+              lunch: 'Personalized lunch option',
+              dinner: 'Personalized dinner option',
+            },
+            generated: true,
+          });
+        }
+      }
+      
+      setDietDays(newDietDays);
       Alert.alert(
-        'AI Diet Plan Generator',
-        'This will create a personalized diet plan based on your profile. Continue?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Generate',
-            onPress: async () => {
-              try {
-                const newPlan = await dietPlanService.generateAIDietPlan({});
-                setDietPlans(prev => [newPlan, ...prev]);
-                Alert.alert('Success', 'New AI diet plan generated!');
-              } catch (error) {
-                Alert.alert('Error', 'Failed to generate AI diet plan');
-              }
-            }
-          }
-        ]
+        'Success', 
+        `Your personalized ${mealPlanData.daily_plans.length}-day diet plan has been generated successfully!`
       );
+      
     } catch (error) {
-      Alert.alert('Error', 'Failed to generate AI diet plan');
+      console.error('Error generating diet plan:', error);
+      Alert.alert(
+        'Error', 
+        error instanceof Error ? error.message : 'Failed to generate diet plan. Please try again.'
+      );
+      
+      // Fallback: Generate sample data if API fails
+      const today = new Date();
+      const fallbackDietDays: DietDay[] = [];
+      
+      const sampleMeals = {
+        breakfast: [
+          'Oatmeal with berries and nuts',
+          'Greek yogurt with granola and honey',
+          'Avocado toast with poached eggs',
+          'Smoothie bowl with mixed fruits',
+          'Whole grain cereal with almond milk',
+          'Banana pancakes with maple syrup',
+          'Scrambled eggs with spinach and tomatoes',
+        ],
+        lunch: [
+          'Grilled chicken salad with mixed greens',
+          'Quinoa bowl with roasted vegetables',
+          'Turkey and avocado wrap',
+          'Lentil soup with whole grain bread',
+          'Fish tacos with cabbage slaw',
+          'Vegetable stir-fry with brown rice',
+          'Chicken and hummus wrap',
+        ],
+        dinner: [
+          'Baked salmon with sweet potato',
+          'Lean beef stir-fry with quinoa',
+          'Grilled chicken with steamed vegetables',
+          'Baked cod with brown rice',
+          'Turkey meatballs with whole wheat pasta',
+          'Vegetable curry with basmati rice',
+          'Herb-crusted pork with roasted vegetables',
+        ],
+      };
+      
+      for (let i = 0; i < 30; i++) {
+        const date = addDays(today, i);
+        fallbackDietDays.push({
+          id: `day-${i + 1}`,
+          date,
+          dayNumber: i + 1,
+          meals: {
+            breakfast: sampleMeals.breakfast[i % sampleMeals.breakfast.length],
+            lunch: sampleMeals.lunch[i % sampleMeals.lunch.length],
+            dinner: sampleMeals.dinner[i % sampleMeals.dinner.length],
+          },
+          generated: true,
+        });
+      }
+      
+      setDietDays(fallbackDietDays);
+      Alert.alert('Sample Plan', 'Using sample diet plan. Please check your internet connection and try again.');
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const navigateToMealPlanner = () => {
-    navigation.navigate('MealPlanner' as never);
-  };
-
-  if (isLoading) {
-    return <Loading message="Loading diet plans..." />;
-  }
+  const renderDietDay = ({ item }: { item: DietDay }) => (
+    <Card style={styles.dayCard}>
+      <View style={styles.dayHeader}>
+        <View style={styles.dayInfo}>
+          <Text style={styles.dayNumber}>Day {item.dayNumber}</Text>
+          <Text style={styles.dayDate}>{formatDateDisplay(item.date)}</Text>
+        </View>
+        <Ionicons
+          name={item.generated ? 'checkmark-circle' : 'time-outline'}
+          size={24}
+          color={item.generated ? '#34C759' : '#8E8E93'}
+        />
+      </View>
+      
+      <View style={styles.mealsContainer}>
+        <View style={styles.mealRow}>
+          <View style={styles.mealIcon}>
+            <Ionicons name="sunny-outline" size={20} color="#FF9500" />
+          </View>
+          <View style={styles.mealInfo}>
+            <Text style={styles.mealType}>Breakfast</Text>
+            <Text style={styles.mealDetails}>{item.meals.breakfast}</Text>
+          </View>
+        </View>
+        
+        <View style={styles.mealRow}>
+          <View style={styles.mealIcon}>
+            <Ionicons name="partly-sunny-outline" size={20} color="#007AFF" />
+          </View>
+          <View style={styles.mealInfo}>
+            <Text style={styles.mealType}>Lunch</Text>
+            <Text style={styles.mealDetails}>{item.meals.lunch}</Text>
+          </View>
+        </View>
+        
+        <View style={styles.mealRow}>
+          <View style={styles.mealIcon}>
+            <Ionicons name="moon-outline" size={20} color="#5856D6" />
+          </View>
+          <View style={styles.mealInfo}>
+            <Text style={styles.mealType}>Dinner</Text>
+            <Text style={styles.mealDetails}>{item.meals.dinner}</Text>
+          </View>
+        </View>
+      </View>
+    </Card>
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Diet Plans</Text>
-        <TouchableOpacity 
-          onPress={navigateToMealPlanner}
-          style={styles.headerButton}
-        >
-          <Ionicons name="calendar-outline" size={24} color="#007AFF" />
-        </TouchableOpacity>
+        <Text style={styles.title}>Diet Plan</Text>
+        <Text style={styles.subtitle}>
+          {dietDays.length > 0 ? '30-Day Meal Plan' : 'Generate your personalized diet plan'}
+        </Text>
       </View>
-
-      <ScrollView style={styles.content}>
-        {/* AI Generator Card */}
-        <Card title="AI Diet Plan Generator" icon="sparkles-outline" style={styles.card}>
-          <Text style={styles.aiDescription}>
-            Let our AI create a personalized diet plan based on your goals, preferences, and health information.
+      
+      {dietDays.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Ionicons name="restaurant-outline" size={80} color="#8E8E93" />
+          <Text style={styles.emptyTitle}>No Diet Plan Yet</Text>
+          <Text style={styles.emptyDescription}>
+            Generate a personalized 30-day diet plan with 3 meals per day
           </Text>
           <Button
-            title="Generate AI Plan"
-            onPress={generateAIPlan}
+            title="Generate Diet Plan"
+            onPress={generateDietPlan}
             loading={isGenerating}
-            disabled={isGenerating}
             style={styles.generateButton}
           />
-        </Card>
-
-        {/* Active Plans */}
-        {dietPlans.filter(plan => plan.is_active).length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Active Plans</Text>
-            {dietPlans
-              .filter(plan => plan.is_active)
-              .map(plan => (
-                <DietPlanCard
-                  key={plan.id}
-                  plan={plan}
-                  onPress={() => {
-                    // Navigate to plan details
-                  }}
-                />
-              ))}
-          </View>
-        )}
-
-        {/* All Plans */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>All Plans</Text>
-          {dietPlans.length === 0 ? (
-            <Card style={styles.card}>
-              <View style={styles.emptyState}>
-                <Ionicons name="restaurant-outline" size={48} color="#8E8E93" />
-                <Text style={styles.emptyTitle}>No Diet Plans Yet</Text>
-                <Text style={styles.emptyMessage}>
-                  Generate your first AI diet plan or create a custom one to get started.
-                </Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.summaryCard}>
+            <Card style={styles.summary}>
+              <View style={styles.summaryContent}>
+                <View style={styles.summaryItem}>
+                  <Text style={styles.summaryNumber}>30</Text>
+                  <Text style={styles.summaryLabel}>Days</Text>
+                </View>
+                <View style={styles.summaryDivider} />
+                <View style={styles.summaryItem}>
+                  <Text style={styles.summaryNumber}>90</Text>
+                  <Text style={styles.summaryLabel}>Meals</Text>
+                </View>
+                <View style={styles.summaryDivider} />
+                <View style={styles.summaryItem}>
+                  <TouchableOpacity onPress={generateDietPlan} disabled={isGenerating}>
+                    <Ionicons name="refresh-outline" size={24} color="#007AFF" />
+                  </TouchableOpacity>
+                  <Text style={styles.summaryLabel}>Regenerate</Text>
+                </View>
               </View>
             </Card>
-          ) : (
-            dietPlans.map(plan => (
-              <DietPlanCard
-                key={plan.id}
-                plan={plan}
-                onPress={() => {
-                  // Navigate to plan details
-                }}
-              />
-            ))
-          )}
-        </View>
-
-        {/* Quick Actions */}
-        <Card title="Quick Actions" style={styles.card}>
-          <View style={styles.quickActions}>
-            <TouchableOpacity 
-              style={styles.quickAction}
-              onPress={navigateToMealPlanner}
-            >
-              <Ionicons name="calendar-outline" size={24} color="#007AFF" />
-              <Text style={styles.quickActionText}>Meal Planner</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.quickAction}
-              onPress={() => navigation.navigate('FoodSearch' as never)}
-            >
-              <Ionicons name="search-outline" size={24} color="#007AFF" />
-              <Text style={styles.quickActionText}>Food Database</Text>
-            </TouchableOpacity>
           </View>
-        </Card>
-      </ScrollView>
+          
+          <FlatList
+            data={dietDays}
+            renderItem={renderDietDay}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContainer}
+          />
+        </>
+      )}
     </View>
-  );
-};
-
-interface DietPlanCardProps {
-  plan: DietPlan;
-  onPress: () => void;
-}
-
-const DietPlanCard: React.FC<DietPlanCardProps> = ({ plan, onPress }) => {
-  const getPlanTypeColor = (type: string) => {
-    switch (type) {
-      case 'weight_loss': return '#FF3B30';
-      case 'weight_gain': return '#34C759';
-      case 'muscle_gain': return '#007AFF';
-      case 'ramadan': return '#FF9500';
-      default: return '#8E8E93';
-    }
-  };
-
-  const formatPlanType = (type: string) => {
-    return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-  };
-
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <Card style={styles.planCard}>
-        <View style={styles.planHeader}>
-          <View style={styles.planInfo}>
-            <Text style={styles.planName}>{plan.name}</Text>
-            <View style={styles.planMeta}>
-              <View style={[
-                styles.planTypeTag,
-                { backgroundColor: `${getPlanTypeColor(plan.plan_type)}20` }
-              ]}>
-                <Text style={[
-                  styles.planTypeText,
-                  { color: getPlanTypeColor(plan.plan_type) }
-                ]}>
-                  {formatPlanType(plan.plan_type)}
-                </Text>
-              </View>
-              {plan.is_active && (
-                <View style={styles.activeTag}>
-                  <Text style={styles.activeTagText}>Active</Text>
-                </View>
-              )}
-            </View>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
-        </View>
-
-        <View style={styles.planDetails}>
-          <View style={styles.planStat}>
-            <Text style={styles.planStatLabel}>Daily Calories</Text>
-            <Text style={styles.planStatValue}>
-              {formatCalories(plan.daily_calorie_target)}
-            </Text>
-          </View>
-          <View style={styles.planStat}>
-            <Text style={styles.planStatLabel}>Duration</Text>
-            <Text style={styles.planStatValue}>{plan.duration_days} days</Text>
-          </View>
-          <View style={styles.planStat}>
-            <Text style={styles.planStatLabel}>Start Date</Text>
-            <Text style={styles.planStatValue}>
-              {formatDateDisplay(plan.start_date)}
-            </Text>
-          </View>
-        </View>
-      </Card>
-    </TouchableOpacity>
   );
 };
 
@@ -250,138 +254,136 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2F2F7',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 24,
+    padding: 20,
     paddingTop: 60,
     backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
     color: '#1C1C1E',
+    marginBottom: 4,
   },
-  headerButton: {
-    padding: 8,
-  },
-  content: {
-    flex: 1,
-  },
-  card: {
-    marginHorizontal: 16,
-    marginVertical: 8,
-  },
-  section: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1C1C1E',
-    marginBottom: 16,
-  },
-  aiDescription: {
+  subtitle: {
     fontSize: 16,
     color: '#8E8E93',
-    lineHeight: 22,
-    marginBottom: 16,
-  },
-  generateButton: {
-    marginTop: 8,
+    fontWeight: '500',
   },
   emptyState: {
+    flex: 1,
     alignItems: 'center',
-    paddingVertical: 32,
+    justifyContent: 'center',
+    paddingHorizontal: 40,
   },
   emptyTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '600',
     color: '#1C1C1E',
     marginTop: 16,
     marginBottom: 8,
   },
-  emptyMessage: {
+  emptyDescription: {
     fontSize: 16,
     color: '#8E8E93',
     textAlign: 'center',
     lineHeight: 22,
+    marginBottom: 32,
   },
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  generateButton: {
+    width: '100%',
+    maxWidth: 300,
   },
-  quickAction: {
-    alignItems: 'center',
-    padding: 16,
+  summaryCard: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
-  quickActionText: {
-    fontSize: 14,
-    color: '#1C1C1E',
-    marginTop: 8,
-    textAlign: 'center',
+  summary: {
+    marginBottom: 0,
   },
-  planCard: {
-    marginBottom: 12,
-  },
-  planHeader: {
+  summaryContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
+    alignItems: 'center',
   },
-  planInfo: {
+  summaryItem: {
+    alignItems: 'center',
     flex: 1,
   },
-  planName: {
+  summaryNumber: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#007AFF',
+    marginBottom: 4,
+  },
+  summaryLabel: {
+    fontSize: 12,
+    color: '#8E8E93',
+    fontWeight: '500',
+  },
+  summaryDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#E5E5EA',
+    marginHorizontal: 16,
+  },
+  listContainer: {
+    padding: 16,
+    paddingTop: 8,
+  },
+  dayCard: {
+    marginBottom: 12,
+  },
+  dayHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  dayInfo: {
+    flex: 1,
+  },
+  dayNumber: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1C1C1E',
-    marginBottom: 8,
+    marginBottom: 2,
   },
-  planMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  planTypeTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginRight: 8,
-  },
-  planTypeText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  activeTag: {
-    backgroundColor: '#34C759',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  activeTagText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#FFFFFF',
-  },
-  planDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  planStat: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  planStatLabel: {
-    fontSize: 12,
+  dayDate: {
+    fontSize: 14,
     color: '#8E8E93',
-    marginBottom: 4,
   },
-  planStatValue: {
+  mealsContainer: {
+    marginTop: 8,
+  },
+  mealRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  mealIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F2F2F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  mealInfo: {
+    flex: 1,
+  },
+  mealType: {
     fontSize: 14,
     fontWeight: '600',
     color: '#1C1C1E',
+    marginBottom: 2,
+  },
+  mealDetails: {
+    fontSize: 13,
+    color: '#8E8E93',
+    lineHeight: 16,
   },
 });
 

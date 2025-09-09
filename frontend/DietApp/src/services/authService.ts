@@ -1,5 +1,6 @@
 import apiService from './apiService';
 import * as SecureStore from 'expo-secure-store';
+import { clearAllAuthTokens } from '../utils/authUtils';
 import { 
   LoginData, 
   RegisterData, 
@@ -11,7 +12,7 @@ class AuthService {
   // Login user
   async login(credentials: LoginData): Promise<{ tokens: AuthTokens; user: User }> {
     try {
-      const response = await apiService.post<AuthTokens>('/auth/jwt/create/', credentials);
+      const response = await apiService.post<AuthTokens>('/auth/login/', credentials);
       
       // Store tokens securely
       await SecureStore.setItemAsync('access_token', response.access);
@@ -39,7 +40,8 @@ class AuthService {
   // Get current user profile
   async getCurrentUser(): Promise<User> {
     try {
-      const response = await apiService.get<User>('/auth/users/me/');
+      const response = await apiService.get<User>('/auth/users/profile/');
+      console.log('Fetched user profile:', JSON.stringify(response));
       return response;
     } catch (error) {
       throw error;
@@ -50,7 +52,7 @@ class AuthService {
   async updateProfile(userData: Partial<User>): Promise<User> {
     try {
       console.log('Updating profile with data:', JSON.stringify(userData));
-      const response = await apiService.patch<User>('/auth/users/me/', userData);
+      const response = await apiService.patch<User>('/auth/users/profile/', userData);
       console.log('Profile update response:', JSON.stringify(response));
       return response;
     } catch (error) {
@@ -88,6 +90,17 @@ class AuthService {
       await SecureStore.deleteItemAsync('refresh_token');
     } catch (error) {
       throw error;
+    }
+  }
+
+  // Clear all stored data (tokens and any other auth-related data)
+  async clearAllAuthData(): Promise<void> {
+    try {
+      // Use the utility function to clear all auth data
+      await clearAllAuthTokens();
+    } catch (error) {
+      console.error('Error clearing auth data:', error);
+      // Don't throw error as this is cleanup operation
     }
   }
 

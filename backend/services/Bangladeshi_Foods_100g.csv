@@ -1,0 +1,201 @@
+category,item,calories_per_100g,fat_g_per_100g,protein_g_per_100g,carbs_g_per_100g
+Grains & Staples,"Rice (white, raw)",130,0.3,2.7,28.0
+Grains & Staples,"Rice (parboiled, raw)",123,0.4,2.9,26.0
+Grains & Staples,"Rice (brown, raw)",123,1.0,2.6,25.6
+Grains & Staples,Rice Flour (Chaler Ata),366,0.7,6.0,80.0
+Grains & Staples,Flattened Rice (Chira),370,1.0,7.0,80.0
+Grains & Staples,Puffed Rice (Muri),350,0.6,6.5,79.0
+Grains & Staples,Wheat Flour (Atta),340,2.5,12.0,72.0
+Grains & Staples,Refined Flour (Maida),364,1.0,10.0,76.0
+Grains & Staples,Semolina (Suji),360,1.0,12.0,73.0
+Grains & Staples,"Maize (Corn, dry)",365,4.7,9.4,74.0
+Grains & Staples,Rice Bran,316,20.0,13.0,34.0
+Grains & Staples,Sago (Sabudana),351,0.2,0.2,87.0
+Grains & Staples,Barley (Jau),354,2.3,12.5,73.5
+Grains & Staples,"Millet (Bajra-like, local)",360,5.0,11.0,67.0
+Grains & Staples,Oats,389,6.9,16.9,66.3
+Legumes & Pulses,"Moong Dal (Green Gram, dry)",347,1.2,24.0,63.0
+Legumes & Pulses,"Masoor Dal (Red Lentil, dry)",350,1.0,25.0,60.0
+Legumes & Pulses,"Chickpeas (Chhola, dry)",364,6.0,19.0,61.0
+Legumes & Pulses,Chana Dal (Split Bengal Gram),364,6.0,20.0,60.0
+Legumes & Pulses,"Urad Dal (Black Gram, split)",341,1.6,25.0,59.0
+Legumes & Pulses,Toor/Arhar Dal,343,1.6,22.0,63.0
+Legumes & Pulses,"Kidney Beans (Rajma, dry)",333,0.8,24.0,60.0
+Legumes & Pulses,"Black Chana (Kala Chana, dry)",364,6.0,20.0,60.0
+Legumes & Pulses,White Peas (Motor),336,1.0,23.0,60.0
+Legumes & Pulses,Soybeans (dry),446,20.0,36.0,30.0
+Vegetables,Lau (Bottle Gourd),14,0.02,0.6,3.4
+Vegetables,Kochu (Taro Root),142,0.1,0.5,34.6
+Vegetables,Potol (Pointed Gourd),20,0.2,2.0,3.5
+Vegetables,Begun (Eggplant),25,0.2,1.0,6.0
+Vegetables,Shosha (Cucumber),15,0.1,0.6,3.6
+Vegetables,Pui Shak (Malabar Spinach),19,0.3,2.1,3.4
+Vegetables,Palong Shak (Spinach),23,0.4,2.9,3.6
+Vegetables,Lau Shak (Bottle Gourd Leaves),22,0.3,2.2,4.0
+Vegetables,Dherosh (Okra),33,0.2,1.9,7.5
+Vegetables,Mula (Radish),16,0.1,0.7,3.4
+Vegetables,Jhinga (Ridge Gourd),21,0.2,1.2,4.3
+Vegetables,Kakrol (Teasle Gourd),30,0.3,1.2,6.5
+Vegetables,Bandhakopi (Cabbage),25,0.1,1.3,6.0
+Vegetables,Phulkopi (Cauliflower),25,0.3,2.0,5.0
+Vegetables,Lal Shak (Red Spinach),27,0.2,2.7,4.6
+Vegetables,Morich (Green Chili),40,0.4,2.0,9.0
+Fruits,Aam (Mango),60,0.4,0.8,15.0
+Fruits,Kathal (Jackfruit),95,0.6,1.7,23.3
+Fruits,Lichu (Lychee),66,0.4,0.8,16.5
+Fruits,Kola (Banana),89,0.3,1.1,23.0
+Fruits,Amra (Hog Plum),40,0.3,0.6,10.0
+Fruits,Jam (Black Plum),60,0.2,0.7,15.5
+Fruits,Guava,68,0.9,2.6,14.3
+Fruits,Anarosh (Pineapple),50,0.1,0.5,13.1
+Fruits,Dalim (Pomegranate),83,1.2,1.7,18.7
+Fruits,Ata (Sugar Apple),94,0.3,2.1,24.0
+Fruits,Bel (Wood Apple),137,0.6,1.8,31.8
+Fruits,"Coconut (mature, flesh)",354,33.5,3.3,15.2
+Fishes,Ilish (Hilsa),310,22.0,22.0,0.0
+Fishes,Rui (Rohu),97,2.0,17.0,0.0
+Fishes,Katla,116,5.0,18.0,0.0
+Fishes,Pabda,95,2.0,17.0,0.0
+Fishes,Tengra,100,2.5,18.0,0.0
+Fishes,Koi (Climbing Perch),105,3.5,16.0,0.0
+Fishes,Shing (Catfish),90,2.0,16.0,0.0
+Fishes,Magur (Walking Catfish),95,2.0,17.0,0.0
+Fishes,Pangash,92,2.0,16.0,0.0
+Fishes,Chingri (Shrimp),99,1.0,24.0,0.0
+Meats & Poultry,Beef Curry,250,15.0,26.0,5.0
+Meats & Poultry,Mutton Curry,280,20.0,25.0,4.0
+Meats & Poultry,Chicken Curry,215,12.0,27.0,4.0
+Meats & Poultry,Duck Curry,337,28.0,19.0,2.0
+Meats & Poultry,Pigeon Curry,294,23.0,19.0,0.0
+Lentils & Pulses,Masoor Dal (Red Lentil),116,0.4,9.0,20.0
+Lentils & Pulses,Moong Dal,105,0.5,7.0,19.0
+Lentils & Pulses,Chhola (Chickpeas),164,2.6,9.0,27.0
+Lentils & Pulses,Motor Dal (Peas),118,0.4,8.0,21.0
+Sweets,Rosogolla,186,5.0,4.0,33.0
+Sweets,Sandesh,250,8.0,6.0,40.0
+Sweets,Chomchom,300,10.0,6.0,50.0
+Sweets,Misti Doi,110,3.0,3.0,18.0
+Sweets,Jilapi (Jalebi),400,15.0,5.0,70.0
+Snacks,Shingara,320,18.0,7.0,35.0
+Snacks,Samosa,308,17.0,6.0,34.0
+Snacks,Fuchka (Puchka),250,8.0,6.0,40.0
+Snacks,Chotpoti,180,6.0,7.0,25.0
+Fishes,Magur (Walking Catfish),95,2.0,17.0,0.0
+Fishes,Chingri (Shrimp),99,1.0,24.0,0.0
+Fruits,Dalim (Pomegranate),83,1.2,1.7,18.7
+Fishes,Katla,116,5.0,18.0,0.0
+Meats & Poultry,Chicken Curry,215,12.0,27.0,4.0
+Meats & Poultry,Mutton Curry,280,20.0,25.0,4.0
+Fruits,Aam (Mango),60,0.4,0.8,15.0
+Fruits,Lichu (Lychee),66,0.4,0.8,16.5
+Snacks,Shingara,320,18.0,7.0,35.0
+Fruits,Kola (Banana),89,0.3,1.1,23.0
+Fishes,Katla,116,5.0,18.0,0.0
+Fruits,Guava,68,0.9,2.6,14.3
+Fishes,Rui (Rohu),97,2.0,17.0,0.0
+Lentils & Pulses,Masoor Dal (Red Lentil),116,0.4,9.0,20.0
+Meats & Poultry,Pigeon Curry,294,23.0,19.0,0.0
+Fruits,Anarosh (Pineapple),50,0.1,0.5,13.1
+Fruits,"Coconut (mature, flesh)",354,33.5,3.3,15.2
+Fruits,Aam (Mango),60,0.4,0.8,15.0
+Sweets,Chomchom,300,10.0,6.0,50.0
+Fishes,Koi (Climbing Perch),105,3.5,16.0,0.0
+Fruits,Amra (Hog Plum),40,0.3,0.6,10.0
+Meats & Poultry,Mutton Curry,280,20.0,25.0,4.0
+Sweets,Rosogolla,186,5.0,4.0,33.0
+Sweets,Sandesh,250,8.0,6.0,40.0
+Fruits,Bel (Wood Apple),137,0.6,1.8,31.8
+Meats & Poultry,Beef Curry,250,15.0,26.0,5.0
+Lentils & Pulses,Moong Dal,105,0.5,7.0,19.0
+Fishes,Koi (Climbing Perch),105,3.5,16.0,0.0
+Meats & Poultry,Chicken Curry,215,12.0,27.0,4.0
+Fishes,Pangash,92,2.0,16.0,0.0
+Vegetables,Lau (Bottle Gourd),14,0.02,0.6,3.4
+Vegetables,Kakrol (Teasle Gourd),30,0.3,1.2,6.5
+Vegetables,Morich (Green Chili),40,0.4,2.0,9.0
+Sweets,Sandesh,250,8.0,6.0,40.0
+Snacks,Shingara,320,18.0,7.0,35.0
+Meats & Poultry,Duck Curry,337,28.0,19.0,2.0
+Vegetables,Morich (Green Chili),40,0.4,2.0,9.0
+Fruits,Anarosh (Pineapple),50,0.1,0.5,13.1
+Fishes,Katla,116,5.0,18.0,0.0
+Sweets,Jilapi (Jalebi),400,15.0,5.0,70.0
+Fishes,Rui (Rohu),97,2.0,17.0,0.0
+Fruits,"Coconut (mature, flesh)",354,33.5,3.3,15.2
+Fruits,Lichu (Lychee),66,0.4,0.8,16.5
+Vegetables,Morich (Green Chili),40,0.4,2.0,9.0
+Vegetables,Dherosh (Okra),33,0.2,1.9,7.5
+Fruits,Kola (Banana),89,0.3,1.1,23.0
+Meats & Poultry,Chicken Curry,215,12.0,27.0,4.0
+Meats & Poultry,Duck Curry,337,28.0,19.0,2.0
+Fruits,Lichu (Lychee),66,0.4,0.8,16.5
+Fruits,Dalim (Pomegranate),83,1.2,1.7,18.7
+Vegetables,Palong Shak (Spinach),23,0.4,2.9,3.6
+Vegetables,Shosha (Cucumber),15,0.1,0.6,3.6
+Meats & Poultry,Duck Curry,337,28.0,19.0,2.0
+Vegetables,Lau Shak (Bottle Gourd Leaves),22,0.3,2.2,4.0
+Sweets,Chomchom,300,10.0,6.0,50.0
+Fishes,Pangash,92,2.0,16.0,0.0
+Snacks,Shingara,320,18.0,7.0,35.0
+Vegetables,Palong Shak (Spinach),23,0.4,2.9,3.6
+Vegetables,Lau Shak (Bottle Gourd Leaves),22,0.3,2.2,4.0
+Vegetables,Bandhakopi (Cabbage),25,0.1,1.3,6.0
+Lentils & Pulses,Motor Dal (Peas),118,0.4,8.0,21.0
+Fishes,Chingri (Shrimp),99,1.0,24.0,0.0
+Snacks,Chotpoti,180,6.0,7.0,25.0
+Fishes,Pabda,95,2.0,17.0,0.0
+Fishes,Pabda,95,2.0,17.0,0.0
+Vegetables,Lau Shak (Bottle Gourd Leaves),22,0.3,2.2,4.0
+Sweets,Misti Doi,110,3.0,3.0,18.0
+Snacks,Shingara,320,18.0,7.0,35.0
+Vegetables,Morich (Green Chili),40,0.4,2.0,9.0
+Vegetables,Mula (Radish),16,0.1,0.7,3.4
+Fruits,Ata (Sugar Apple),94,0.3,2.1,24.0
+Fruits,Anarosh (Pineapple),50,0.1,0.5,13.1
+Meats & Poultry,Chicken Curry,215,12.0,27.0,4.0
+Vegetables,Potol (Pointed Gourd),20,0.2,2.0,3.5
+Vegetables,Phulkopi (Cauliflower),25,0.3,2.0,5.0
+Meats & Poultry,Chicken Curry,215,12.0,27.0,4.0
+Vegetables,Dherosh (Okra),33,0.2,1.9,7.5
+Vegetables,Begun (Eggplant),25,0.2,1.0,6.0
+Fishes,Katla,116,5.0,18.0,0.0
+Vegetables,Lal Shak (Red Spinach),27,0.2,2.7,4.6
+Sweets,Chomchom,300,10.0,6.0,50.0
+Fruits,Jam (Black Plum),60,0.2,0.7,15.5
+Vegetables,Palong Shak (Spinach),23,0.4,2.9,3.6
+Lentils & Pulses,Motor Dal (Peas),118,0.4,8.0,21.0
+Vegetables,Bandhakopi (Cabbage),25,0.1,1.3,6.0
+Sweets,Sandesh,250,8.0,6.0,40.0
+Meats & Poultry,Pigeon Curry,294,23.0,19.0,0.0
+Vegetables,Jhinga (Ridge Gourd),21,0.2,1.2,4.3
+Vegetables,Kochu (Taro Root),142,0.1,0.5,34.6
+Sweets,Sandesh,250,8.0,6.0,40.0
+Fruits,Kola (Banana),89,0.3,1.1,23.0
+Lentils & Pulses,Masoor Dal (Red Lentil),116,0.4,9.0,20.0
+Vegetables,Mula (Radish),16,0.1,0.7,3.4
+Fruits,Amra (Hog Plum),40,0.3,0.6,10.0
+Fruits,Dalim (Pomegranate),83,1.2,1.7,18.7
+Vegetables,Lau Shak (Bottle Gourd Leaves),22,0.3,2.2,4.0
+Lentils & Pulses,Motor Dal (Peas),118,0.4,8.0,21.0
+Meats & Poultry,Mutton Curry,280,20.0,25.0,4.0
+Fishes,Chingri (Shrimp),99,1.0,24.0,0.0
+Vegetables,Phulkopi (Cauliflower),25,0.3,2.0,5.0
+Snacks,Chotpoti,180,6.0,7.0,25.0
+Fishes,Katla,116,5.0,18.0,0.0
+Fruits,Lichu (Lychee),66,0.4,0.8,16.5
+Fishes,Pabda,95,2.0,17.0,0.0
+Fishes,Tengra,100,2.5,18.0,0.0
+Sweets,Misti Doi,110,3.0,3.0,18.0
+Sweets,Rosogolla,186,5.0,4.0,33.0
+Vegetables,Lal Shak (Red Spinach),27,0.2,2.7,4.6
+Snacks,Shingara,320,18.0,7.0,35.0
+Vegetables,Kochu (Taro Root),142,0.1,0.5,34.6
+Vegetables,Kakrol (Teasle Gourd),30,0.3,1.2,6.5
+Vegetables,Kakrol (Teasle Gourd),30,0.3,1.2,6.5
+Vegetables,Morich (Green Chili),40,0.4,2.0,9.0
+Vegetables,Lal Shak (Red Spinach),27,0.2,2.7,4.6
+Fishes,Ilish (Hilsa),310,22.0,22.0,0.0
+Fruits,Kola (Banana),89,0.3,1.1,23.0
+Fruits,"Coconut (mature, flesh)",354,33.5,3.3,15.2
+Lentils & Pulses,Motor Dal (Peas),118,0.4,8.0,21.0
+Fishes,Rui (Rohu),97,2.0,17.0,0.0

@@ -1,119 +1,87 @@
+from datetime import date, timezone
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
+import json
 
 User = get_user_model()
 
-class DietPlan(models.Model):
-    PLAN_TYPE_CHOICES = [
-        ('regular', 'Regular Diet'),
-        ('ramadan', 'Ramadan Diet'),
-        ('weight_loss', 'Weight Loss'),
-        ('weight_gain', 'Weight Gain'),
-        ('muscle_gain', 'Muscle Gain'),
-    ]
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='diet_plans')
-    name = models.CharField(max_length=200)
-    plan_type = models.CharField(max_length=20, choices=PLAN_TYPE_CHOICES, default='regular')
-    duration_days = models.IntegerField(default=30)
-    daily_calorie_target = models.IntegerField()
-    is_active = models.BooleanField(default=True)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return f"{self.user.username} - {self.name}"
-
 class Food(models.Model):
-    FOOD_CATEGORY_CHOICES = [
-        ('grains', 'Grains & Cereals'),
-        ('proteins', 'Proteins'),
-        ('dairy', 'Dairy'),
-        ('fruits', 'Fruits'),
-        ('vegetables', 'Vegetables'),
-        ('fats', 'Fats & Oils'),
-        ('beverages', 'Beverages'),
-        ('snacks', 'Snacks'),
-    ]
-    
-    name = models.CharField(max_length=200)
-    category = models.CharField(max_length=20, choices=FOOD_CATEGORY_CHOICES)
-    calories_per_100g = models.FloatField()
-    protein_per_100g = models.FloatField(default=0)
-    carbs_per_100g = models.FloatField(default=0)
-    fat_per_100g = models.FloatField(default=0)
-    fiber_per_100g = models.FloatField(default=0)
-    is_halal = models.BooleanField(default=True)
-    is_vegetarian = models.BooleanField(default=False)
-    is_vegan = models.BooleanField(default=False)
-    common_allergens = models.TextField(blank=True, help_text="Comma-separated allergens")
-    
+    """Food model to store food items with basic nutritional information"""
+    name = models.CharField(max_length=255, unique=True)
+    calories_per_100g = models.FloatField(help_text="Calories per 100 grams")
+    protein_per_100g = models.FloatField(default=0, help_text="Protein in grams per 100g")
+    carbs_per_100g = models.FloatField(default=0, help_text="Carbohydrates in grams per 100g")
+    fat_per_100g = models.FloatField(default=0, help_text="Fat in grams per 100g")
+    fiber_per_100g = models.FloatField(default=0, help_text="Fiber in grams per 100g")
+    category = models.CharField(max_length=100, blank=True, help_text="Food category (e.g., vegetables, fruits, grains)")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return self.name
 
-class Meal(models.Model):
-    MEAL_TYPE_CHOICES = [
-        ('breakfast', 'Breakfast'),
-        ('lunch', 'Lunch'),
-        ('dinner', 'Dinner'),
-        ('snack', 'Snack'),
-        ('suhoor', 'Suhoor'),
-        ('iftar', 'Iftar'),
-    ]
-    
-    diet_plan = models.ForeignKey(DietPlan, on_delete=models.CASCADE, related_name='meals')
-    day_number = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(30)])
-    meal_type = models.CharField(max_length=20, choices=MEAL_TYPE_CHOICES)
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    total_calories = models.FloatField()
-    is_completed = models.BooleanField(default=False)
-    completion_date = models.DateTimeField(null=True, blank=True)
-    
     class Meta:
-        unique_together = ['diet_plan', 'day_number', 'meal_type']
-        ordering = ['day_number', 'meal_type']
-    
+        ordering = ['name']
+
+
+class GenerateMeal(models.Model):
+    MEAL_TYPE_CHOICES = [('Regular','Regular'), ('Ramadan','Ramadan')]
+    generated_at = models.DateTimeField(auto_now_add=True)
+    meal_type = models.CharField(max_length=50, choices=MEAL_TYPE_CHOICES)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    ai_generated_data = models.TextField()  # store the big dict as JSON
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='generated_meals')
+
     def __str__(self):
-        return f"Day {self.day_number} - {self.meal_type} - {self.name}"
+        return f"{self.user.username} - {self.meal_type} ({self.start_date} to {self.end_date})"
 
-class MealFood(models.Model):
-    meal = models.ForeignKey(Meal, on_delete=models.CASCADE, related_name='meal_foods')
-    food = models.ForeignKey(Food, on_delete=models.CASCADE)
-    quantity_grams = models.FloatField()
-    
-    def calculate_calories(self):
-        return (self.food.calories_per_100g * self.quantity_grams) / 100
-    
-    def calculate_protein(self):
-        return (self.food.protein_per_100g * self.quantity_grams) / 100
-    
-    def calculate_carbs(self):
-        return (self.food.carbs_per_100g * self.quantity_grams) / 100
-    
-    def calculate_fat(self):
-        return (self.food.fat_per_100g * self.quantity_grams) / 100
+    def save(self, *args, **kwargs):
+        # Only auto-fill dates if not provided
+        if not self.start_date:
+            # day after "now" in your server TZ (or use user's TZ if you track it)
+            self.start_date = timezone.localdate() + timedelta(days=1)
+        if not self.end_date:
+            # Day 1..Day 30 inclusive => +29
+            self.end_date = self.start_date + timedelta(days=29)
+        super().save(*args, **kwargs)
 
-class DietPlanProgress(models.Model):
-    diet_plan = models.OneToOneField(DietPlan, on_delete=models.CASCADE, related_name='progress')
-    current_day = models.IntegerField(default=1)
-    completed_days = models.IntegerField(default=0)
-    skipped_days = models.IntegerField(default=0)
-    total_resets = models.IntegerField(default=0)
-    last_reset_date = models.DateTimeField(null=True, blank=True)
-    
-    def reset_plan(self):
-        from django.utils import timezone
-        self.current_day = 1
-        self.completed_days = 0
-        self.total_resets += 1
-        self.last_reset_date = timezone.now()
-        self.save()
-        
-        # Mark all meals as incomplete
-        self.diet_plan.meals.update(is_completed=False, completion_date=None)
+
+class ToDoList(models.Model):
+    MEAL_TIME_CHOICES = [('Breakfast','Breakfast'), ('Lunch','Lunch'), ('Dinner','Dinner'), ('Snacks','Snacks')]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='todo_lists')
+    meal = models.TextField()  # JSON string of items for that meal_time
+    day = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(30)])
+    meal_time = models.CharField(max_length=50, choices=MEAL_TIME_CHOICES)
+    date_of_meal = models.DateField()
+    is_completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        # Prevent duplicates for a user on the same date & meal_time
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'date_of_meal', 'meal_time'],
+                name='uniq_user_date_mealtime'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user.get_full_name() or self.user.username} • {self.date_of_meal} • {self.meal_time} • {'Done' if self.is_completed else 'Pending'}"
+
+class UserMealProfile(models.Model):
+    GOAL_CHOICES = [
+        ('weight_loss', 'Weight Loss'),
+        ('muscle_gain', 'Muscle Gain'),
+        ('maintenance', 'Maintenance'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='meal_profiles')
+    meal_round = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(3)])
+    new_weight = models.FloatField(help_text="Weight in kg")
+    new_height = models.FloatField(help_text="Height in cm")
+    generated_meal = models.ForeignKey(GenerateMeal, on_delete=models.CASCADE, related_name='meal_profiles')
+    goal = models.CharField(max_length=255, choices=GOAL_CHOICES)

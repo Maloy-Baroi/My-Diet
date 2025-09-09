@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from datetime import date, timedelta
 from django.db.models import Sum, Avg, Count
-from diet_plans.models import DietPlan, Meal
+# from diet_plans.models import DietPlan, Meal
 from progress.models import WeightLog, CalorieLog, Achievement
 from notifications.models import UserNotification
 
@@ -14,10 +14,7 @@ class ComprehensiveDashboardView(APIView):
     def get(self, request):
         user = request.user
         today = date.today()
-        
-        # Get active diet plan
-        active_plan = user.diet_plans.filter(is_active=True).first()
-        
+
         # User basic info
         user_info = {
             'name': user.first_name or user.username,
@@ -29,48 +26,11 @@ class ComprehensiveDashboardView(APIView):
             'current_weight': user.weight,
             'target_weight': user.target_weight,
         }
-        
-        # Active plan info
-        plan_info = {}
-        if active_plan:
-            progress = active_plan.progress
-            plan_info = {
-                'name': active_plan.name,
-                'type': active_plan.get_plan_type_display(),
-                'current_day': progress.current_day,
-                'total_days': active_plan.duration_days,
-                'completed_days': progress.completed_days,
-                'skipped_days': progress.skipped_days,
-                'completion_percentage': (progress.completed_days / active_plan.duration_days) * 100,
-                'daily_calorie_target': active_plan.daily_calorie_target,
-            }
-        
+
         # Today's meals and progress
         today_meals = []
         today_completion = 0
-        if active_plan:
-            today_meals_qs = active_plan.meals.filter(day_number=progress.current_day)
-            today_meals = [
-                {
-                    'id': meal.id,
-                    'meal_type': meal.get_meal_type_display(),
-                    'name': meal.name,
-                    'calories': meal.total_calories,
-                    'is_completed': meal.is_completed,
-                    'completion_date': meal.completion_date,
-                    'foods_count': meal.meal_foods.count()
-                }
-                for meal in today_meals_qs
-            ]
-            
-            if today_meals_qs:
-                completed = today_meals_qs.filter(is_completed=True).count()
-                today_completion = (completed / today_meals_qs.count()) * 100
-        
-        # Weekly progress
-        week_ago = today - timedelta(days=7)
-        weekly_stats = self.get_weekly_stats(user, week_ago, today)
-        
+
         # Recent achievements
         recent_achievements = user.achievements.all()[:5].values(
             'title', 'description', 'badge_icon', 'earned_date'
@@ -86,14 +46,11 @@ class ComprehensiveDashboardView(APIView):
         
         dashboard_data = {
             'user_info': user_info,
-            'active_plan': plan_info,
             'today_meals': today_meals,
             'today_completion_percentage': today_completion,
-            'weekly_stats': weekly_stats,
             'recent_achievements': list(recent_achievements),
             'unread_notifications': list(unread_notifications),
             'health_insights': health_insights,
-            'quick_actions': self.get_quick_actions(user, active_plan)
         }
         
         return Response(dashboard_data)

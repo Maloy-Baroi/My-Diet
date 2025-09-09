@@ -1,28 +1,29 @@
 from django.contrib import admin
-from .models import DietPlan, Food, Meal, MealFood, DietPlanProgress
+from .models import *
+
+@admin.register(GenerateMeal)
+class GenerateMealAdmin(admin.ModelAdmin):
+    list_display = ('user', 'meal_type', 'start_date', 'end_date', 'generated_at')
+    search_fields = ('user__username', 'meal_type')
+    list_filter = ('meal_type', 'generated_at')
+    readonly_fields = ('generated_at', 'start_date', 'end_date')
+
+@admin.register(ToDoList)
+class ToDoListAdmin(admin.ModelAdmin):
+    list_display = ('user', 'meal_time', 'day', 'date_of_meal', 'is_completed')
+    search_fields = ('user__username', 'meal_time', 'meal')
+    list_filter = ('meal_time', 'is_completed', 'date_of_meal')
+    readonly_fields = ('created_at', 'updated_at')
+
+@admin.register(UserMealProfile)
+class UserMealProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'meal_round', 'new_weight', 'new_height', 'goal')
+    search_fields = ('user__username', 'goal')
+    list_filter = ('goal', 'meal_round')
 
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'calories_per_100g', 'is_vegetarian', 'is_vegan', 'is_halal']
-    list_filter = ['category', 'is_vegetarian', 'is_vegan', 'is_halal']
-    search_fields = ['name']
-
-class MealFoodInline(admin.TabularInline):
-    model = MealFood
-    extra = 1
-
-@admin.register(Meal)
-class MealAdmin(admin.ModelAdmin):
-    list_display = ['diet_plan', 'day_number', 'meal_type', 'name', 'is_completed']
-    list_filter = ['meal_type', 'is_completed', 'diet_plan__plan_type']
-    inlines = [MealFoodInline]
-
-@admin.register(DietPlan)
-class DietPlanAdmin(admin.ModelAdmin):
-    list_display = ['user', 'name', 'plan_type', 'is_active', 'start_date', 'end_date']
-    list_filter = ['plan_type', 'is_active']
-    search_fields = ['user__username', 'name']
-
-@admin.register(DietPlanProgress)
-class DietPlanProgressAdmin(admin.ModelAdmin):
-    list_display = ['diet_plan', 'current_day', 'completed_days', 'skipped_days', 'total_resets']
+    list_display = ('name', 'calories_per_100g', 'protein_per_100g', 'category', 'created_at')
+    search_fields = ('name', 'category')
+    list_filter = ('category', 'created_at')
+    readonly_fields = ('created_at', 'updated_at')

@@ -74,3 +74,4 @@ class User(AbstractUser):
         }
         
         return round(bmr * activity_multipliers.get(self.activity_level, 1.2), 2)
+

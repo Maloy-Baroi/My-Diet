@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, LoginData, RegisterData, AuthTokens } from '../types';
 import authService from '../services/authService';
+import { clearAllAuthTokens } from '../utils/authUtils';
 
 interface AuthContextType {
   user: User | null;
@@ -11,6 +12,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateProfile: (userData: Partial<User>) => Promise<void>;
   refreshUser: () => Promise<void>;
+  clearAllTokens: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,8 +27,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    checkAuthStatus();
+    initializeAuth();
   }, []);
+
+  const initializeAuth = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Clear all tokens on every app start/build
+      console.log('Clearing all stored tokens on app initialization...');
+      await authService.clearAllAuthData();
+      
+      // Since we cleared all data, set initial state
+      setUser(null);
+      setIsAuthenticated(false);
+      
+      console.log('App initialized with clean auth state');
+    } catch (error) {
+      console.error('Auth initialization failed:', error);
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const checkAuthStatus = async () => {
     try {
@@ -112,6 +136,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const clearAllTokens = async () => {
+    try {
+      console.log('Manually clearing all tokens...');
+      await clearAllAuthTokens();
+      setUser(null);
+      setIsAuthenticated(false);
+      console.log('All tokens cleared manually');
+    } catch (error) {
+      console.error('Manual token clear failed:', error);
+      // Still update state even if clear fails
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -121,6 +160,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     updateProfile,
     refreshUser,
+    clearAllTokens,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

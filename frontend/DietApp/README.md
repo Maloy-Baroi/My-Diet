@@ -143,6 +143,52 @@ EXPO_PUBLIC_API_URL=your_backend_url
 EXPO_PUBLIC_SENTRY_DSN=your_sentry_dsn
 ```
 
+## Token Management
+
+### Automatic Token Clearing
+The app automatically clears all authentication tokens on every app start/build to ensure a clean state. This behavior is implemented in the `AuthContext` initialization.
+
+### Manual Token Management
+
+#### Available Scripts
+```bash
+# Start app with fresh cache and clear tokens
+npm run start:fresh
+
+# Clear all caches and restart
+npm run reset
+
+# Clear Metro bundler cache only
+npm run clear:cache
+
+# Clear all tokens and caches (uses shell script)
+npm run clear:all
+```
+
+#### Manual Token Clearing
+1. **Via Debug Button**: In development mode, use the debug button in the onboarding screen
+2. **Via Script**: Run `./clear-tokens.sh` or `npm run clear:all`
+3. **Via Code**: Call `clearAllTokens()` from the AuthContext
+
+#### Token Storage Locations
+The app stores authentication data in:
+- `access_token` - JWT access token
+- `refresh_token` - JWT refresh token
+- `user_preferences` - User preference data (optional)
+- `last_login` - Last login timestamp (optional)
+
+#### Development Utilities
+```typescript
+// Import the utilities
+import { clearAllAuthTokens, hasAuthTokens, forceLogoutAndClear } from './src/utils/authUtils';
+
+// Check if tokens exist
+const hasTokens = await hasAuthTokens();
+
+// Force clear all tokens (development only)
+await forceLogoutAndClear();
+```
+
 ## Development Notes
 
 ### Code Organization
