@@ -13,6 +13,7 @@
     "reset": "npm run clear:cache && npm run start:fresh"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.1",
     "@react-native-community/datetimepicker": "^8.4.4",
     "@react-navigation/bottom-tabs": "^7.4.6",

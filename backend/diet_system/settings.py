@@ -99,6 +99,15 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Dhaka'
 
+# Worker configuration
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1  # Important for long-running tasks
+CELERY_TASK_ACKS_LATE = True
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 1000
+
+# Task time limits
+CELERY_TASK_TIME_LIMIT = 900  # 15 minutes
+CELERY_TASK_SOFT_TIME_LIMIT = 840  # 14 minutes
+
 # REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -146,15 +155,33 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
 
-# Djoser Configuration
-DJOSER = {
-    'SERIALIZERS': {
-        'user': 'accounts.serializers.UserProfileSerializer',
-        'current_user': 'accounts.serializers.UserProfileSerializer',
-        'user_create': 'djoser.serializers.UserCreateSerializer',
+# Logging configuration for better debugging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'celery.log',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
     },
-    'PERMISSIONS': {
-        'user': ['rest_framework.permissions.IsAuthenticated'],
-        'user_list': ['rest_framework.permissions.IsAuthenticated'],
+    'loggers': {
+        'celery': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'diet_plans.tasks': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
     },
 }
+
+

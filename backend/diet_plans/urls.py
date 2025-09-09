@@ -1,8 +1,8 @@
 from django.urls import path
-from diet_plans.views import GenerateDietPlanAPIView, DietPlanTaskStatusAPIView
+from diet_plans.views import SaveAIDietPlanAPIView, GetGeneratedMealPlanAPIView
 
 urlpatterns = [
     # Diet plan endpoints
-    path('generate/', GenerateDietPlanAPIView.as_view(), name='generate-diet-plan'),
-    path('task-status/<str:task_id>/', DietPlanTaskStatusAPIView.as_view(), name='diet-plan-task-status'),
+    path('save-ai-plan/', SaveAIDietPlanAPIView.as_view(), name='save-ai-diet-plan'),
+    path('generate/<int:meal_plan_id>/', GetGeneratedMealPlanAPIView.as_view(), name='get-generated-meal-plan'),
 ]

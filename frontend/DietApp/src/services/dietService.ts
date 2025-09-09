@@ -1,5 +1,6 @@
 import apiService from './apiService';
-import { 
+import aiDietService, { UserDietProfile, ProcessedDietPlan } from './aiDietService';
+import {
   DietPlan, 
   Food, 
   Meal, 
@@ -52,8 +53,8 @@ class DietPlanService {
     }
   }
 
-  // Generate AI diet plan
-  async generateAIDietPlan(preferences: any): Promise<DietPlan> {
+  // Generate AI diet plan (legacy method - will be deprecated)
+  async generateAIDietPlanLegacy(preferences: any): Promise<DietPlan> {
     try {
       return await apiService.post<DietPlan>('/diet/generate/', preferences);
     } catch (error) {
@@ -115,6 +116,63 @@ class DietPlanService {
   async getMealSuggestions(preferences: any): Promise<Meal[]> {
     try {
       return await apiService.post<Meal[]>('/diet/meal_suggestions/', preferences);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Generate AI diet plan using TypeScript service
+  async generateAIDietPlan(userProfile: UserDietProfile): Promise<ProcessedDietPlan> {
+    try {
+      // Generate diet plan using AI service
+      const aiDietPlan = await aiDietService.generateDietPlan(userProfile);
+
+      // Process the AI response into the format expected by backend
+      const startDate = new Date();
+      const processedPlan = aiDietService.processDietPlan(
+        aiDietPlan,
+        startDate,
+        'Regular',
+        userProfile.goal
+      );
+
+      return processedPlan;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Save AI-generated diet plan to backend
+  async saveAIDietPlan(processedPlan: ProcessedDietPlan): Promise<{
+    message: string;
+    meal_plan_id: number;
+    start_date: string;
+    end_date: string;
+    meal_type: string;
+  }> {
+    try {
+      return await apiService.post('/diet/save-ai-plan/', processedPlan);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Combined method: Generate and save AI diet plan
+  async generateAndSaveAIDietPlan(userProfile: UserDietProfile): Promise<{
+    message: string;
+    meal_plan_id: number;
+    start_date: string;
+    end_date: string;
+    meal_type: string;
+  }> {
+    try {
+      // Generate the AI diet plan
+      const processedPlan = await this.generateAIDietPlan(userProfile);
+
+      // Save it to the backend
+      const result = await this.saveAIDietPlan(processedPlan);
+
+      return result;
     } catch (error) {
       throw error;
     }

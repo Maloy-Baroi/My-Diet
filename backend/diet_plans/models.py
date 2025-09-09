@@ -1,8 +1,8 @@
-from datetime import date, timezone
-from datetime import timedelta
+from datetime import date, timedelta
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 import json
 
 User = get_user_model()
@@ -42,7 +42,7 @@ class GenerateMeal(models.Model):
         # Only auto-fill dates if not provided
         if not self.start_date:
             # day after "now" in your server TZ (or use user's TZ if you track it)
-            self.start_date = timezone.localdate() + timedelta(days=1)
+            self.start_date = timezone.now().date() + timedelta(days=1)
         if not self.end_date:
             # Day 1..Day 30 inclusive => +29
             self.end_date = self.start_date + timedelta(days=29)
