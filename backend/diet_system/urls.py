@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/progress/', include('progress.urls')),
     path('api/notification/', include('notifications.urls')),
     path('api/nutrition/', include('nutrition.urls')),
+    path('api/prayer/', include('prayer.urls')),
     path('api/dashboard/', ComprehensiveDashboardView.as_view(), name='dashboard'),
 ]
 

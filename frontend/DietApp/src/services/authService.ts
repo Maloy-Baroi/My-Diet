@@ -61,6 +61,36 @@ class AuthService {
     }
   }
 
+  // Update profile with photo upload
+  async updateProfileWithPhoto(formData: FormData): Promise<User> {
+    try {
+      console.log('Updating profile with photo upload');
+      const response = await apiService.uploadFile<User>('/auth/users/profile/', formData);
+      console.log('Profile photo update response:', JSON.stringify(response));
+      return response;
+    } catch (error) {
+      console.error('Profile photo update error in service:', error);
+      throw error;
+    }
+  }
+
+  // Upload profile photo only
+  async uploadProfilePhoto(imageFile: FormData): Promise<User> {
+    try {
+      console.log('Uploading profile photo only');
+      const response = await apiService.post<User>('/auth/profile/upload-photo/', imageFile, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Profile photo upload response:', JSON.stringify(response));
+      return response;
+    } catch (error) {
+      console.error('Profile photo upload error in service:', error);
+      throw error;
+    }
+  }
+
   // Change password
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     try {

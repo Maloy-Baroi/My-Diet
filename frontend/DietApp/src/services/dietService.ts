@@ -89,15 +89,43 @@ class DietPlanService {
       breakfast: string;
       lunch: string;
       dinner: string;
+      snacks?: string;
     }>;
     start_date: string;
     end_date: string;
     meal_type: string;
   }> {
     try {
-      return await apiService.get(`/diet/generate/${mealPlanId}/`);
+      // Use the running-meal-plan endpoint instead
+      return await apiService.get(`/diet/running-meal-plan/`);
     } catch (error) {
       throw error;
+    }
+  }
+
+  // Get current running meal plan
+  async getCurrentRunningMealPlan(): Promise<{
+    id: number;
+    daily_plans: Array<{
+      day: number;
+      date: string;
+      breakfast: string;
+      lunch: string;
+      dinner: string;
+      snacks?: string;
+    }>;
+    start_date: string;
+    end_date: string;
+    meal_type: string;
+  } | null> {
+    try {
+      // Get the running meal plan
+      const response = await apiService.get('/diet/running-meal-plan/');
+      return response;
+    } catch (error) {
+      // If no running meal plan exists, return null
+      console.log('No running meal plan found:', error);
+      return null;
     }
   }
 
@@ -124,6 +152,8 @@ class DietPlanService {
   // Generate AI diet plan using TypeScript service
   async generateAIDietPlan(userProfile: UserDietProfile): Promise<ProcessedDietPlan> {
     try {
+      console.log('Generating AI diet plan with profile:', userProfile);
+      // return;
       // Generate diet plan using AI service
       const aiDietPlan = await aiDietService.generateDietPlan(userProfile);
 

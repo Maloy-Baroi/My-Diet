@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import * as FileSystem from 'expo-file-system';
 
 // Types for AI diet generation
 export interface UserDietProfile {
@@ -55,7 +56,7 @@ class AIDietService {
    */
   async generateDietPlan(userProfile: UserDietProfile): Promise<AIDietPlan> {
     const maxRetries = 3;
-    const retryDelay = 2000; // 2 seconds
+    const retryDelay = 5000; // 2 seconds
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -68,10 +69,17 @@ class AIDietService {
         const text = response.text();
 
         console.log('AI response received, parsing...');
+        console.log(text);
 
         // Clean and parse the JSON response
         const cleanResponse = text.replace(/```json\n?/g, '').replace(/```/g, '').trim();
         const dietPlan: AIDietPlan = JSON.parse(cleanResponse);
+
+        console.log('Diet plan generated successfully.');
+        // save to a json file for debugging
+        const path = FileSystem.documentDirectory + 'dietPlan.json';
+        await FileSystem.writeAsStringAsync(path, JSON.stringify(dietPlan, null, 2));
+        console.log('Diet plan saved to', path);
 
         return dietPlan;
       } catch (error) {
@@ -112,43 +120,15 @@ class AIDietService {
     console.log('Generating fallback diet plan...');
 
     const breakfastOptions = [
-      ['Oatmeal: 50g', 'Banana: 1 medium', 'Almonds: 15g'],
-      ['Greek yogurt: 150g', 'Berries: 100g', 'Honey: 1 tbsp'],
-      ['Whole grain toast: 2 slices', 'Avocado: 1/2 medium', 'Egg: 1 boiled'],
-      ['Smoothie with spinach: 1 cup', 'Protein powder: 1 scoop', 'Apple: 1 medium'],
-      ['Brown rice: 60g', 'Lentils: 50g', 'Vegetables: 100g'],
-      ['Quinoa: 50g', 'Mixed nuts: 20g', 'Orange: 1 medium'],
-      ['Chia pudding: 150g', 'Mango: 100g', 'Coconut flakes: 10g']
     ];
 
     const lunchOptions = [
-      ['Grilled chicken: 120g', 'Brown rice: 80g', 'Mixed vegetables: 150g'],
-      ['Fish curry: 150g', 'Quinoa: 70g', 'Salad: 100g'],
-      ['Lentil soup: 200ml', 'Whole grain bread: 2 slices', 'Cucumber: 100g'],
-      ['Turkey wrap: 1 large', 'Hummus: 2 tbsp', 'Carrot sticks: 100g'],
-      ['Vegetable stir-fry: 200g', 'Tofu: 100g', 'Brown rice: 80g'],
-      ['Grilled salmon: 120g', 'Sweet potato: 150g', 'Green beans: 100g'],
-      ['Chicken salad: 180g', 'Mixed greens: 100g', 'Olive oil: 1 tbsp']
     ];
 
     const dinnerOptions = [
-      ['Baked fish: 120g', 'Roasted vegetables: 200g', 'Quinoa: 60g'],
-      ['Chicken curry: 150g', 'Brown rice: 70g', 'Yogurt: 100g'],
-      ['Vegetable soup: 250ml', 'Grilled chicken: 100g', 'Salad: 100g'],
-      ['Beef stir-fry: 120g', 'Mixed vegetables: 150g', 'Brown rice: 60g'],
-      ['Baked chicken: 120g', 'Sweet potato: 150g', 'Broccoli: 100g'],
-      ['Fish curry: 150g', 'Cauliflower rice: 100g', 'Green salad: 100g'],
-      ['Lentil curry: 200g', 'Whole grain roti: 2 pieces', 'Cucumber raita: 100g']
     ];
 
     const snackOptions = [
-      ['Mixed nuts: 25g', 'Apple: 1 small'],
-      ['Greek yogurt: 100g', 'Berries: 50g'],
-      ['Hummus: 2 tbsp', 'Carrot sticks: 100g'],
-      ['Banana: 1 medium', 'Peanut butter: 1 tbsp'],
-      ['Almonds: 20g', 'Orange: 1 small'],
-      ['Cottage cheese: 100g', 'Cucumber: 50g'],
-      ['Trail mix: 30g', 'Water: 1 glass']
     ];
 
     const fallbackPlan: AIDietPlan = {};
@@ -214,6 +194,7 @@ class AIDietService {
    * Create prompt for AI diet generation
    */
   private createPrompt(userProfile: UserDietProfile): string {
+    console.log('Creating prompt with user profile:', userProfile);
     return `
 Given the following user data:
 Age: ${userProfile.age}

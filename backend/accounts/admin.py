@@ -13,7 +13,7 @@ class CustomUserAdmin(UserAdmin):
         ('Diet Preferences', {
             'fields': ('activity_level', 'goal', 'target_weight', 'allergies', 
                       'medical_conditions', 'dietary_restrictions', 'preferred_cuisines', 
-                      'disliked_foods')
+                      'disliked_foods', 'profile_photo')
         }),
     )
     

@@ -88,8 +88,8 @@ class ApiService {
     return response.data;
   }
 
-  async post<T>(url: string, data?: any): Promise<T> {
-    const response = await this.api.post(url, data);
+  async post<T>(url: string, data?: any, config?: any): Promise<T> {
+    const response = await this.api.post(url, data, config);
     return response.data;
   }
 
@@ -117,7 +117,7 @@ class ApiService {
 
   // File upload method
   async uploadFile<T>(url: string, formData: FormData): Promise<T> {
-    const response = await this.api.post(url, formData, {
+    const response = await this.api.patch(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

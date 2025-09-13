@@ -1,14 +1,19 @@
 from django.urls import path
-from .views import UserProfileViewSet, CustomTokenObtainPairView, CustomTokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
+from . import views
+
+app_name = 'accounts'
 
 urlpatterns = [
     # Authentication endpoints
-    path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
+    path('login/', views.login_view, name='login'),
+    path('token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('logout/', views.logout_view, name='logout'),
 
-    # User profile endpoints
-    path('users/', UserProfileViewSet.as_view({'get': 'list', 'post': 'create'}), name='user-list'),
-    path('users/<int:pk>/', UserProfileViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='user-detail'),
-    path('users/profile/', UserProfileViewSet.as_view({'get': 'profile', 'patch': 'profile'}), name='user-profile'),
-    path('users/update-profile/', UserProfileViewSet.as_view({'patch': 'update_profile'}), name='user-update-profile'),
+    # User management endpoints
+    path('register/', views.UserRegistrationView.as_view(), name='register'),
+    path('users/profile/', views.UserProfileView.as_view(), name='profile'),
+    path('profile/detail/', views.user_profile_detail, name='profile-detail'),
+    path('profile/upload-photo/', views.upload_profile_photo, name='upload-photo'),
 ]

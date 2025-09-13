@@ -1,11 +1,21 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, FlatList} from 'react-native';
-import {Ionicons} from '@expo/vector-icons';
-import Card from '../../components/Card';
+import React, { useState } from 'react';
+import {
+    View,
+    Text,
+    FlatList,
+    TouchableOpacity,
+    StyleSheet,
+    Alert,
+    RefreshControl,
+} from 'react-native';
+import { Card } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import Button from '../../components/Button';
 import {formatDateDisplay, addDays} from '../../utils/dateUtils';
 import {dietPlanService} from '../../services/dietService';
 import aiDietService, { UserDietProfile } from '../../services/aiDietService';
+import authService from '../../services/authService';
+import { User } from '../../types';
 
 interface DietDay {
     id: string;
@@ -23,6 +33,114 @@ interface DietDay {
 const DietPlanScreen: React.FC = () => {
     const [dietDays, setDietDays] = useState<DietDay[]>([]);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+
+    // Helper function to convert User to UserDietProfile
+    const convertUserToUserDietProfile = (user: User): UserDietProfile => {
+        // Calculate age from date_of_birth
+        const calculateAge = (dateOfBirth: string): number => {
+            if (!dateOfBirth) return 25; // Default age
+            const birthDate = new Date(dateOfBirth);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age || 25; // Default to 25 if calculation fails
+        };
+
+        // Map activity levels
+        const mapActivityLevel = (activityLevel: string): 'sedentary' | 'lightly active' | 'moderately active' | 'very active' => {
+            switch (activityLevel) {
+                case 'sedentary': return 'sedentary';
+                case 'light': return 'lightly active';
+                case 'moderate': return 'moderately active';
+                case 'active': return 'very active';
+                case 'extra_active': return 'very active';
+                default: return 'moderately active';
+            }
+        };
+
+        // Map goal
+        const mapGoal = (goal: string): 'weight_loss' | 'weight_gain' | 'muscle_gain' | 'maintain_weight' => {
+            switch (goal) {
+                case 'lose_weight': return 'weight_loss';
+                case 'gain_weight': return 'weight_gain';
+                case 'muscle_gain': return 'muscle_gain';
+                case 'maintain_weight': return 'maintain_weight';
+                case 'health_improvement': return 'maintain_weight';
+                default: return 'maintain_weight';
+            }
+        };
+
+        // Parse comma-separated strings to arrays
+        const parseToArray = (str: string): string[] => {
+            if (!str) return [];
+            return str.split(',').map(item => item.trim()).filter(item => item.length > 0);
+        };
+
+        return {
+            age: user.date_of_birth ? calculateAge(user.date_of_birth) : 25,
+            gender: user.gender || 'M',
+            height_cm: user.height || 170,
+            weight_kg: user.weight || 70,
+            activity_level: mapActivityLevel(user.activity_level),
+            goal: mapGoal(user.goal),
+            medical_conditions: parseToArray(user.medical_conditions || ''),
+            food_restrictions: parseToArray(user.dietary_restrictions || ''),
+            food_preferences: parseToArray(user.preferred_cuisines || ''),
+        };
+    };
+
+    // Check for existing meal plan on component mount
+    React.useEffect(() => {
+        checkExistingMealPlan();
+    }, []);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await checkExistingMealPlan();
+        setRefreshing(false);
+    };
+
+    const checkExistingMealPlan = async () => {
+        try {
+            setIsLoading(true);
+            console.log('Checking for existing meal plan...');
+            
+            const existingPlan = await dietPlanService.getCurrentRunningMealPlan();
+            
+            if (existingPlan && existingPlan.daily_plans) {
+                console.log('Found existing meal plan:', existingPlan);
+                
+                // Convert the existing plan to frontend format
+                const newDietDays: DietDay[] = existingPlan.daily_plans.map((dayPlan) => ({
+                    id: `day-${dayPlan.day}`,
+                    date: new Date(dayPlan.date),
+                    dayNumber: dayPlan.day,
+                    meals: {
+                        breakfast: dayPlan.breakfast,
+                        lunch: dayPlan.lunch,
+                        dinner: dayPlan.dinner,
+                        snacks: dayPlan.snacks || 'No snacks planned',
+                    },
+                    generated: true,
+                }));
+                
+                setDietDays(newDietDays);
+            } else {
+                console.log('No existing meal plan found');
+                setDietDays([]);
+            }
+        } catch (error) {
+            console.error('Error checking existing meal plan:', error);
+            setDietDays([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const generateDietPlan = async () => {
         setIsGenerating(true);
@@ -33,22 +151,11 @@ const DietPlanScreen: React.FC = () => {
                 'Creating your personalized 30-day meal plan using AI. This may take a few moments...'
             );
 
-            // Get user profile (you might want to get this from user storage/API)
-            const userProfile: UserDietProfile = aiDietService.getDefaultUserProfile();
+            // Get user profile from API
+            const user = await authService.getCurrentUser();
+            const userProfile: UserDietProfile = convertUserToUserDietProfile(user);
 
-            // You can customize this with actual user data from your app
-            // For example, if you have user preferences stored:
-            // const userProfile: UserDietProfile = {
-            //     age: userAge,
-            //     gender: userGender,
-            //     height_cm: userHeight,
-            //     weight_kg: userWeight,
-            //     activity_level: userActivityLevel,
-            //     goal: userGoal,
-            //     medical_conditions: userMedicalConditions,
-            //     food_restrictions: userFoodRestrictions,
-            //     food_preferences: userFoodPreferences,
-            // };
+            console.log('User profile for AI diet generation:', userProfile);
 
             // Generate and save the AI diet plan
             const response = await dietPlanService.generateAndSaveAIDietPlan(userProfile);
@@ -84,18 +191,35 @@ const DietPlanScreen: React.FC = () => {
                 `Your personalized 30-day diet plan has been generated and saved! ${response.message}`
             );
 
+            // Refresh the meal plan to show the newly generated plan
+            await checkExistingMealPlan();
+
         } catch (error) {
             console.error('Error generating diet plan:', error);
+            
+            // More detailed error logging
+            if (error?.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
+                console.error('Response headers:', error.response.headers);
+            } else if (error?.request) {
+                console.error('Request was made but no response received:', error.request);
+            } else {
+                console.error('Error setting up request:', error.message);
+            }
+            
             Alert.alert(
                 'Error',
-                error instanceof Error ? error.message : 'Failed to generate diet plan. Please check your internet connection and try again.'
+                error?.response?.data?.message || 
+                error?.message || 
+                'Failed to generate diet plan. Please ensure your profile is complete and check your internet connection.'
             );
         } finally {
             setIsGenerating(false);
         }
     };
 
-    const renderDietDay = ({item}: { item: DietDay }) => (
+    const renderDietDay = ({ item }: { item: DietDay }) => (
         <Card style={styles.dayCard}>
             <View style={styles.dayHeader}>
                 <View style={styles.dayInfo}>
@@ -142,7 +266,7 @@ const DietPlanScreen: React.FC = () => {
 
                 <View style={styles.mealRow}>
                     <View style={styles.mealIcon}>
-                        <Ionicons name="snack-outline" size={20} color="#FFCC00"/>
+                        <Ionicons name="restaurant-outline" size={20} color="#FFCC00"/>
                     </View>
                     <View style={styles.mealInfo}>
                         <Text style={styles.mealType}>Snacks</Text>
@@ -207,6 +331,9 @@ const DietPlanScreen: React.FC = () => {
                         keyExtractor={(item) => item.id}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={styles.listContainer}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        }
                     />
                 </>
             )}
@@ -242,6 +369,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 40,
+    },
+    loadingState: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 40,
+    },
+    loadingText: {
+        fontSize: 16,
+        color: '#8E8E93',
+        marginTop: 16,
+        textAlign: 'center',
     },
     emptyTitle: {
         fontSize: 24,

@@ -3,7 +3,7 @@ from .models import *
 
 @admin.register(GenerateMeal)
 class GenerateMealAdmin(admin.ModelAdmin):
-    list_display = ('user', 'meal_type', 'start_date', 'end_date', 'generated_at')
+    list_display = ('user', 'meal_type', 'start_date', 'end_date', 'generated_at', 'is_running')
     search_fields = ('user__username', 'meal_type')
     list_filter = ('meal_type', 'generated_at')
     readonly_fields = ('generated_at', 'start_date', 'end_date')

@@ -1,4 +1,6 @@
 import logging
+
+from dateutil.utils import today
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -75,15 +77,24 @@ class SaveAIDietPlanAPIView(APIView):
                 for meal_time in meal_times:
                     meal_content = day_data.get(meal_time.lower(), '')
 
-                    # Create ToDoList entry for this meal
-                    ToDoList.objects.create(
+                    # Use get_or_create to avoid UNIQUE constraint errors
+                    todo_item, created = ToDoList.objects.get_or_create(
                         user=request.user,
-                        meal=meal_content,
-                        day=day_number,
-                        meal_time=meal_time,
                         date_of_meal=day_date,
-                        is_completed=False
+                        meal_time=meal_time,
+                        defaults={
+                            'meal': meal_content,
+                            'day': day_number,
+                            'is_completed': False
+                        }
                     )
+
+                    # If the item already exists, update it with new meal content
+                    if not created:
+                        todo_item.meal = meal_content
+                        todo_item.day = day_number
+                        todo_item.is_completed = False  # Reset completion status
+                        todo_item.save()
 
             logger.info(f"Successfully saved AI diet plan with ID: {meal_plan.id}")
 
@@ -108,12 +119,29 @@ class SaveAIDietPlanAPIView(APIView):
 class GetGeneratedMealPlanAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, meal_plan_id):
-        """
-        Get the generated meal plan details by ID
-        """
+    def get(self, request):
         try:
-            meal_plan = GenerateMeal.objects.get(id=meal_plan_id, user=request.user)
+            today_date = datetime.now().date()
+
+            # Find meal plans that are currently active (today falls within start_date and end_date)
+            meal_plans = GenerateMeal.objects.filter(
+                user=request.user,
+                start_date__lte=today_date,
+                end_date__gte=today_date
+            )
+
+            if meal_plans.exists():
+                if meal_plans.count() > 1:
+                    # If multiple active plans, choose the one marked as running or the most recent one
+                    meal_plan = meal_plans.filter(is_running=True).order_by('-start_date').first()
+                    if not meal_plan:
+                        meal_plan = meal_plans.order_by('-start_date').first()
+                else:
+                    meal_plan = meal_plans.first()
+            else:
+                return Response({
+                    'error': 'No active meal plan found'
+                }, status=status.HTTP_404_NOT_FOUND)
 
             # Parse the JSON data
             ai_data = json.loads(meal_plan.ai_generated_data)
@@ -154,5 +182,132 @@ class GetGeneratedMealPlanAPIView(APIView):
             logger.error(f"Error retrieving meal plan: {str(e)}", exc_info=True)
             return Response({
                 'error': 'Failed to retrieve meal plan',
+                'details': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ToDoListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        Get the to-do diet list for the authenticated user
+        """
+        # Fetch to-do list items for the user for today
+        try:
+            today = datetime.now().date()
+            todo_items = ToDoList.objects.filter(user=request.user, date_of_meal=today)
+
+            # Serialize the data
+            serialized_items = [
+                {
+                    'id': item.id,
+                    'meal': item.meal,
+                    'day': item.day,
+                    'meal_time': item.meal_time,
+                    'date_of_meal': item.date_of_meal.strftime('%Y-%m-%d'),
+                    'is_completed': item.is_completed
+                }
+                for item in todo_items
+            ]
+
+            return Response({
+                'todo_list': serialized_items
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error retrieving to-do diet list: {str(e)}", exc_info=True)
+            return Response({
+                'error': 'Failed to retrieve to-do diet list',
+                'details': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def patch(self, request):
+        """
+        Update the completion status of to-do diet items.
+        Requires all 4 items for today to be sent together and all must be completed.
+        """
+        try:
+            items_data = request.data.get('items', [])
+
+            if not items_data:
+                return Response({
+                    'error': 'Items array is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if exactly 4 items are provided
+            if len(items_data) != 4:
+                return Response({
+                    'error': 'Exactly 4 items must be provided (Breakfast, Lunch, Dinner, Snacks)'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Extract item IDs and completion statuses
+            item_ids = []
+            completion_statuses = []
+
+            for item_data in items_data:
+                item_id = item_data.get('id')
+                is_completed = item_data.get('is_completed')
+
+                if item_id is None or is_completed is None:
+                    return Response({
+                        'error': 'Each item must have id and is_completed fields'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                item_ids.append(item_id)
+                completion_statuses.append(is_completed)
+
+            # Verify all items belong to the user and are for today
+            today = datetime.now().date()
+            todo_items = ToDoList.objects.filter(
+                id__in=item_ids,
+                user=request.user,
+                date_of_meal=today
+            )
+
+            if todo_items.count() != 4:
+                return Response({
+                    'error': 'All 4 items must belong to you and be for today'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if all items are marked as completed
+            all_completed = all(completion_statuses)
+
+            if not all_completed:
+                return Response({
+                    'error': 'All 4 items must be marked as completed to update'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Update all items since validation passed
+            updated_items = []
+            for item_data in items_data:
+                item_id = item_data['id']
+                is_completed = item_data['is_completed']
+
+                todo_item = todo_items.get(id=item_id)
+                todo_item.is_completed = is_completed
+                todo_item.save()
+
+                updated_items.append({
+                    'id': todo_item.id,
+                    'meal': todo_item.meal,
+                    'day': todo_item.day,
+                    'meal_time': todo_item.meal_time,
+                    'date_of_meal': todo_item.date_of_meal.strftime('%Y-%m-%d'),
+                    'is_completed': todo_item.is_completed
+                })
+
+            return Response({
+                'message': 'All to-do items updated successfully',
+                'items': updated_items
+            }, status=status.HTTP_200_OK)
+
+        except ToDoList.DoesNotExist:
+            return Response({
+                'error': 'One or more to-do items not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error updating to-do diet items: {str(e)}", exc_info=True)
+            return Response({
+                'error': 'Failed to update to-do diet items',
                 'details': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

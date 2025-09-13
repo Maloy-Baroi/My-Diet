@@ -9,11 +9,12 @@ import {
   Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useDashboard } from '../../context/DashboardContext';
 import Card, { StatCard } from '../../components/Card';
 import Loading from '../../components/Loading';
+import WaterCard from '../../components/WaterCard';
 import { formatWeight, formatCalories, formatPercentage } from '../../utils/numberUtils';
 import { calculateBMI, getBMICategory } from '../../utils/healthUtils';
 import { formatDateDisplay } from '../../utils/dateUtils';
@@ -81,7 +82,7 @@ const DashboardScreen: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Today's Overview</Text>
           <View style={styles.statsGrid}>
-            <StatCard
+            {/* <StatCard
               title="Calories"
               value={todayNutrition?.calories || 0}
               unit="cal"
@@ -89,7 +90,7 @@ const DashboardScreen: React.FC = () => {
               changeLabel="% of goal"
               icon="flame-outline"
               color="#FF6B35"
-            />
+            /> */}
             <StatCard
               title="Weight"
               value={formatWeight(user?.weight || 0, 'kg').replace(' kg', '')}
@@ -102,13 +103,13 @@ const DashboardScreen: React.FC = () => {
           </View>
 
           <View style={styles.statsGrid}>
-            <StatCard
+            {/* <StatCard
               title="Water"
               value={todayNutrition?.water || 0}
               unit="L"
               icon="water-outline"
               color="#00D4AA"
-            />
+            /> */}
             <StatCard
               title="BMI"
               value={currentBMI.toFixed(1)}
@@ -284,39 +285,42 @@ const DashboardScreen: React.FC = () => {
           </Card>
         )}
 
+        {/* Water Intake Card */}
+        <WaterCard onPress={() => navigation.navigate('WaterTracker' as never)} />
+
         {/* Quick Actions */}
         <Card title="Quick Actions" style={styles.card}>
           <View style={styles.quickActions}>
             <TouchableOpacity 
               style={styles.quickAction}
-              onPress={() => navigation.navigate('CalorieTracker' as never)}
+              onPress={() => navigation.navigate('WaterTracker' as never)}
             >
-              <Ionicons name="add-circle-outline" size={24} color="#007AFF" />
-              <Text style={styles.quickActionText}>Log Food</Text>
+              <Ionicons name="water-outline" size={24} color="#007AFF" />
+              <Text style={styles.quickActionText}>Log Water</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.quickAction}
-              onPress={() => navigation.navigate('WeightTracker' as never)}
+              onPress={() => navigation.navigate('Exercise' as never)}
             >
-              <Ionicons name="scale-outline" size={24} color="#007AFF" />
-              <Text style={styles.quickActionText}>Log Weight</Text>
+              <Ionicons name="barbell-outline" size={24} color="#007AFF" />
+              <Text style={styles.quickActionText}>Log Exercise</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.quickAction}
-              onPress={() => navigation.navigate('FoodSearch' as never)}
+              onPress={() => navigation.navigate('PrayerTime' as never)}
             >
-              <Ionicons name="search-outline" size={24} color="#007AFF" />
-              <Text style={styles.quickActionText}>Find Food</Text>
+              <FontAwesome5 name="mosque" size={24} color="#007AFF" />
+              <Text style={styles.quickActionText}>Prayer Times</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.quickAction}
-              onPress={() => navigation.navigate('MealPlanner' as never)}
+              onPress={() => navigation.navigate('Grocery' as never)}
             >
-              <Ionicons name="calendar-outline" size={24} color="#007AFF" />
-              <Text style={styles.quickActionText}>Plan Meals</Text>
+              <Ionicons name="cart-outline" size={24} color="#007AFF" />
+              <Text style={styles.quickActionText}>Buy Groceries</Text>
             </TouchableOpacity>
           </View>
         </Card>

@@ -25,6 +25,8 @@ class User(AbstractUser):
         ('health_improvement', 'Health Improvement'),
     ]
     
+    # Profile Information
+    profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True, help_text="Profile photo")
     phone_number = models.CharField(max_length=15, unique=True, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
@@ -74,4 +76,3 @@ class User(AbstractUser):
         }
         
         return round(bmr * activity_multipliers.get(self.activity_level, 1.2), 2)
-

@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'nutrition',
     'progress',
     'notifications',
+    'prayer',
 ]
 
 MIDDLEWARE = [
@@ -183,5 +184,3 @@ LOGGING = {
         },
     },
 }
-
-

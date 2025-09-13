@@ -11,6 +11,8 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (userData: Partial<User>) => Promise<void>;
+  updateProfileWithPhoto: (formData: FormData) => Promise<void>;
+  uploadProfilePhoto: (imageFile: FormData) => Promise<void>;
   refreshUser: () => Promise<void>;
   clearAllTokens: () => Promise<void>;
 }
@@ -124,6 +126,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateProfileWithPhoto = async (formData: FormData) => {
+    try {
+      const updatedUser = await authService.updateProfileWithPhoto(formData);
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Profile photo update failed:', error);
+      throw error;
+    }
+  };
+
+  const uploadProfilePhoto = async (imageFile: FormData) => {
+    try {
+      const updatedUser = await authService.uploadProfilePhoto(imageFile);
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Profile photo upload failed:', error);
+      throw error;
+    }
+  };
+
   const refreshUser = async () => {
     try {
       if (isAuthenticated) {
@@ -159,6 +181,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     updateProfile,
+    updateProfileWithPhoto,
+    uploadProfilePhoto,
     refreshUser,
     clearAllTokens,
   };

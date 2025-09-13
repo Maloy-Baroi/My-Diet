@@ -19,6 +19,7 @@ import TodoAlarmScreen from '../screens/todo/TodoAlarmScreen';
 // import NutritionScreen from '../screens/nutrition/NutritionScreen';
 // import ProgressScreen from '../screens/progress/ProgressScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import EditProfileScreen from '../screens/profile/EditProfileScreen';
 
 // Additional Screens
 // import MealPlannerScreen from '../screens/diet/MealPlannerScreen';
@@ -28,6 +29,10 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 // import AchievementsScreen from '../screens/progress/AchievementsScreen';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
+import { ExerciseTracker } from '../screens/exercisetracker/ExerciseTracker';
+import WaterTracker from '../screens/watertracker/WaterTracker';
+import PrayerTimeScreen from '../screens/prayer/PrayerTimeScreen';
+import GroceryPageScreen from '../screens/grocery/GroceryPageScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -60,6 +65,9 @@ const MainTabs = () => (
           case 'Todo':
             iconName = focused ? 'checkmark-circle' : 'checkmark-circle-outline';
             break;
+          case 'Exercise':
+            iconName = focused ? 'barbell' : 'barbell-outline';
+            break;
           case 'Nutrition':
             iconName = focused ? 'nutrition' : 'nutrition-outline';
             break;
@@ -83,6 +91,7 @@ const MainTabs = () => (
     <Tab.Screen name="Dashboard" component={DashboardScreen} />
     <Tab.Screen name="Diet" component={DietPlanScreen} />
     <Tab.Screen name="Todo" component={TodoAlarmScreen} />
+    {/* <Tab.Screen name="Exercise" component={ExerciseTracker} /> */}
     {/* <Tab.Screen name="Nutrition" component={NutritionScreen} /> */}
     {/* <Tab.Screen name="Progress" component={ProgressScreen} /> */}
     <Tab.Screen name="Profile" component={ProfileScreen} />
@@ -95,6 +104,11 @@ const MainStack = () => (
     <Stack.Screen 
       name="MainTabs" 
       component={MainTabs} 
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen 
+      name="EditProfile" 
+      component={EditProfileScreen}
       options={{ headerShown: false }}
     />
     {/* <Stack.Screen 
@@ -131,6 +145,26 @@ const MainStack = () => (
       name="Settings" 
       component={SettingsScreen}
       options={{ title: 'Settings' }}
+    />
+    <Stack.Screen 
+      name="WaterTracker" 
+      component={WaterTracker}
+      options={{ title: 'Water Tracker' }}
+    />
+    <Stack.Screen 
+      name="Exercise" 
+      component={ExerciseTracker}
+      options={{ title: 'Exercise Tracker' }}
+    />
+    <Stack.Screen 
+      name="PrayerTime" 
+      component={PrayerTimeScreen}
+      options={{ title: 'Prayer Times' }}
+    />
+    <Stack.Screen 
+      name="Grocery" 
+      component={GroceryPageScreen}
+      options={{ title: 'Buy Groceries' }}
     />
   </Stack.Navigator>
 );
